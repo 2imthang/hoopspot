@@ -1,0 +1,38 @@
+# compiled output
+/dist
+/node_modules
+/build
+
+# Prisma generated client
+/src/generated/prisma
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+
+# Tests
+/coverage
+/.nyc_output
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+*.launch
+.settings/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Prisma migrate temp
+/prisma/migrations/.migrate-lock
