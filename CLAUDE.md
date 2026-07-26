@@ -10,7 +10,7 @@
 
 ## Tech Stack (đã chốt — không đổi, không đề xuất thay thế)
 
-| Layer | Công nghệ |
+| Layer | Công nghệ |git add .
 |---|---|
 | Mobile | Flutter + Dart, Bloc (flutter_bloc) — KHÔNG dùng Riverpod |
 | Architecture | Clean Architecture, Feature-first folder structure |

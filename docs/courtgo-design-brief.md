@@ -1,13 +1,15 @@
 # HoopSpot — Tài Liệu Thiết Kế Dự Án
 ### App Đặt Sân Bóng Rổ | Portfolio Flutter Internship
 
+> ⚠️ **LƯU Ý QUAN TRỌNG**: Tài liệu này ban đầu được viết cho kiến trúc NestJS + PostgreSQL + JWT tự viết. Dự án đã **pivot sang Firebase** (xem mục 2 — Tech Stack) để đơn giản hóa cho mục tiêu vibe code. **Mục 2 và các quyết định về tài khoản/role vẫn đúng và mới nhất.** Tuy nhiên các mục phía sau nói về ER Diagram dạng bảng SQL, REST API endpoint chi tiết, JWT flow, Backend Architecture kiểu NestJS — những phần đó **không còn áp dụng**, chỉ giữ lại làm tài liệu tham khảo lịch sử. Khi cần chi tiết database/API mới, dùng cấu trúc Firestore collection mô tả trong `CLAUDE.md` và `hoopspot-roadmap.md` (bản Firebase) thay thế.
+
 ---
 
 ## 0. Mục tiêu & Nguyên tắc
 
-- **Mục tiêu**: MVP chất lượng cao, đủ sâu để thể hiện kỹ năng Flutter + REST API thật sự, đủ gọn để hoàn thành trong 2-3 tháng làm một mình.
-- **Nguyên tắc**: Không over-engineering. Không thiết kế mâu thuẫn (VD: không vừa dùng Firestore vừa thiết kế REST API/ER Diagram SQL). Ưu tiên chiều sâu kỹ thuật hơn số lượng tính năng.
-- **Vai trò khi thực hiện**: Technical Lead + Senior Flutter Developer + Backend Developer, giải thích rõ lý do mỗi quyết định kỹ thuật (ưu/nhược điểm, có phù hợp mục tiêu thực tập không), nhưng KHÔNG viết code ở giai đoạn thiết kế.
+- **Mục tiêu**: MVP chất lượng cao, đủ gọn để hoàn thành trong 1.5 tháng bằng vibe code (Claude Code), không cần hiểu sâu backend phức tạp.
+- **Nguyên tắc**: Không over-engineering. Ưu tiên đơn giản, dễ hiểu hơn là thể hiện chiều sâu kỹ thuật backend — đổi lại tập trung chiều sâu vào Flutter/UI và đúng 1 phần thanh toán (Cloud Function).
+- **Vai trò khi thực hiện**: Technical Lead + Senior Flutter Developer, giải thích rõ lý do mỗi quyết định kỹ thuật, ưu tiên phương án đơn giản nhất đáp ứng đúng yêu cầu.
 
 ---
 
@@ -22,26 +24,27 @@
 
 ---
 
-## 2. Tech Stack (đã chốt — không cần so sánh lại các phương án đã loại)
+## 2. Tech Stack (đã chốt — bản Firebase, đã pivot từ NestJS/Prisma vì quá nặng kiến thức so với mục tiêu vibe code)
+
+> **Lịch sử quyết định**: Bản đầu tiên chọn tự viết backend (NestJS + Prisma) để thể hiện kỹ năng API. Sau khi triển khai thực tế, nhận thấy khối lượng kiến thức cần hiểu (JWT, migration, deploy server...) vượt quá mục tiêu ban đầu là "vibe code" nhanh. Quyết định pivot sang Firebase để đơn giản hóa, giữ lại đúng 1 phần cần "viết backend" là Cloud Function xử lý thanh toán VNPay.
 
 | Thành phần | Lựa chọn | Lý do ngắn gọn |
 |---|---|---|
 | Mobile | Flutter + Dart | Yêu cầu bắt buộc |
 | State Management | **Bloc (flutter_bloc)** | Đã chốt — quản lý state tường minh qua Event/State, phổ biến ở nhiều công ty outsource/product tại VN, dễ giải thích luồng dữ liệu khi phỏng vấn |
-| Architecture | Clean Architecture (Feature-first) | Chuẩn doanh nghiệp, dễ test, dễ mở rộng |
-| Networking | Dio + Interceptor | Retry, auth header, log request tự động |
-| **Backend** | **NestJS + PostgreSQL + Prisma/TypeORM** | Tự viết toàn bộ REST API — mục tiêu chính là thể hiện kỹ năng API, không dùng Firestore (schema-less, không cần viết endpoint) |
-| **Authentication** | **Tự viết JWT (access + refresh token)** | Không dùng Firebase Auth, để thể hiện hiểu về auth flow, middleware, guard |
-| File Storage | Firebase Storage | Chỉ dùng cho upload ảnh — không phải trọng tâm kỹ năng, dùng SDK có sẵn để tiết kiệm thời gian |
-| Notification | flutter_local_notifications | Bản gốc chỉ yêu cầu Local Notification, không cần FCM/Push |
+| Architecture | Clean Architecture (Feature-first) | Chuẩn doanh nghiệp, dễ test, dễ mở rộng — lớp Data giờ gọi Firestore SDK thay vì REST API tự viết, nhưng Domain/Presentation không đổi |
+| Networking | Dio | Vẫn dùng để gọi API bên thứ 3 (Google Maps, VNPay) — phần lớn dữ liệu app (Users, Courts, Bookings) đọc/ghi thẳng qua Firestore SDK |
+| **Backend/Database** | **Firebase (Firestore + Cloud Functions)** | Không tự viết REST API/JWT/migration — Firestore lo database, Cloud Functions chỉ dùng cho phần bắt buộc phải có backend: xác nhận thanh toán VNPay an toàn |
+| **Authentication** | **Firebase Authentication** (Email/Password + Google Sign-In) | Không tự viết JWT — Firebase SDK tự lo toàn bộ vòng đời token |
+| File Storage | Firebase Storage | Upload ảnh sân, avatar |
+| Notification | flutter_local_notifications | Không cần FCM/Push |
 | Maps | Google Maps Flutter Plugin | Tìm sân gần, chỉ đường |
-| CI/CD | GitHub Actions (cơ bản) | Build + lint tự động, không cần deploy phức tạp |
-| Backend Hosting | Render / Railway (free tier) | Đủ để demo khi phỏng vấn |
-| **Payment Gateway** | **VNPay Sandbox** | Tích hợp thật (redirect, callback, verify signature) — thể hiện kỹ năng xử lý thanh toán async, không phải giả lập |
+| **Payment Gateway** | **VNPay Sandbox** | Vẫn tích hợp thật (redirect, IPN callback, verify signature) qua Cloud Function — không mock, vì đây là phần thể hiện kỹ năng duy nhất còn giữ lại |
+| Deploy | `firebase deploy` (Cloud Functions + Hosting nếu cần) | Không cần tự thuê/cấu hình server riêng như Render/Railway |
 
-**Lưu ý quan trọng**: Không dùng Firebase Auth/Firestore cho phần lõi dữ liệu (Users, Courts, Bookings...). Toàn bộ business data đi qua NestJS REST API do bạn tự viết.
+**Lưu ý quan trọng**: Business data (Users, Courts, Bookings, Reviews...) đọc/ghi trực tiếp qua Firestore SDK từ Flutter, có Security Rules kiểm soát quyền truy cập ở tầng database — thay thế cho việc tự viết middleware/guard kiểm tra JWT như hướng cũ.
 
-**Quyết định mô hình tài khoản**: User và Court Owner là 2 loại tài khoản tách biệt hoàn toàn (không phải 1 tài khoản mang nhiều role). Role chỉ có 3 giá trị cố định: `USER`, `OWNER`, `ADMIN`. Owner đăng ký xong ở trạng thái `pending`, cần Admin duyệt (`approved`) mới tạo được sân. Việc tách riêng giúp authorization đơn giản (check role trực tiếp, không cần check ownership), UI/navigation tách biệt theo role, và loại bỏ rủi ro tự đặt/tự review sân của chính mình.
+**Quyết định mô hình tài khoản**: User và Court Owner là 2 loại tài khoản tách biệt hoàn toàn (không phải 1 tài khoản mang nhiều role). Role chỉ có 3 giá trị cố định: `USER`, `OWNER`, `ADMIN`. Owner đăng ký xong ở trạng thái `pending`, cần Admin duyệt (`approved`) mới tạo được sân. Việc tách riêng giúp authorization đơn giản (check role trực tiếp qua Security Rules, không cần check ownership phức tạp), UI/navigation tách biệt theo role, và loại bỏ rủi ro tự đặt/tự review sân của chính mình.
 
 ---
 
