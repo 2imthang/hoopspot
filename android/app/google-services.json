@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "897502050772",
+    "project_id": "hoop-spot-e5d61",
+    "storage_bucket": "hoop-spot-e5d61.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:897502050772:android:922f16c2ff72fcdf277e41",
+        "android_client_info": {
+          "package_name": "com.example.hoop_spot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "897502050772-um7gk24e3q1mqe6c78l1oopc5d4i8dv5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUIymRciY1K6k7MM_aw8r0T_Y6v_eOj4I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "897502050772-um7gk24e3q1mqe6c78l1oopc5d4i8dv5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

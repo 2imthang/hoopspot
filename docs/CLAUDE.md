@@ -14,6 +14,15 @@ Dự án BAN ĐẦU dự định tự viết backend bằng NestJS + Prisma + Po
 
 **Việc cần làm ngay**: Xóa thư mục `/backend` (project NestJS cũ) — không dùng nữa. Không cần Neon database nữa (có thể xóa project trên neon.tech sau, không bắt buộc ngay).
 
+## ⚠️ THAY ĐỔI TIẾP THEO: bỏ Firebase Storage + Cloud Functions (tránh bắt buộc gói Blaze/thẻ tín dụng)
+
+Firebase Storage và Cloud Functions từ cuối 2024 **bắt buộc nâng cấp gói Blaze (phải nhập thẻ tín dụng)**, dù nằm trong free quota vẫn phải nhập thẻ. Người dùng muốn dự án **không cần thẻ, không rủi ro phí ở bất kỳ đâu**. **QUYẾT ĐỊNH: thay 2 phần đó bằng dịch vụ free-tier không cần thẻ**, giữ nguyên Firebase Auth + Firestore (gói Spark, free, không cần thẻ).
+
+| Phần cũ (cần Blaze) | Thay bằng |
+|---|---|
+| Firebase Storage | **Cloudinary** (free tier 25GB storage/bandwidth, không cần thẻ) |
+| Firebase Cloud Functions (VNPay IPN) | **Cloudflare Workers** (free tier rộng rãi, không cần thẻ, không bị sleep như 1 số free host khác) |
+
 ## Tech Stack (đã chốt — không đổi, không đề xuất thay thế)
 
 | Layer | Công nghệ |
@@ -22,14 +31,16 @@ Dự án BAN ĐẦU dự định tự viết backend bằng NestJS + Prisma + Po
 | Architecture | Clean Architecture, Feature-first folder structure (giữ nguyên cấu trúc đã tạo ở TASK-002, chỉ đổi lớp Data để gọi Firebase SDK thay vì Dio → REST API tự viết) |
 | Auth | **Firebase Authentication** (email/password + Google Sign-In) — KHÔNG tự viết JWT |
 | Database | **Cloud Firestore** (NoSQL, không cần schema/migration — định nghĩa cấu trúc document trong functional-spec) |
-| File Storage | Firebase Storage (ảnh sân, avatar) |
-| Payment Backend | **Firebase Cloud Functions** (chỉ 1-2 function nhỏ: tạo URL thanh toán VNPay, xử lý IPN callback, gọi Refund API) — KHÔNG dựng backend riêng, KHÔNG cần tự deploy server |
-| Payment Gateway | VNPay Sandbox (vẫn tích hợp thật qua Cloud Function, không mock) |
+| File Storage | **Cloudinary** (ảnh sân, avatar) — KHÔNG dùng Firebase Storage (tránh bắt buộc gói Blaze) |
+| Payment Backend | **Cloudflare Workers** (1-2 function nhỏ: tạo URL thanh toán VNPay, xử lý IPN callback, gọi Refund API) — KHÔNG dùng Firebase Cloud Functions (tránh bắt buộc gói Blaze), KHÔNG dựng backend riêng |
+| Payment Gateway | VNPay Sandbox (vẫn tích hợp thật qua Cloudflare Worker, không mock) |
 | Notification | flutter_local_notifications — KHÔNG dùng FCM/Push |
 | Maps | Google Maps Flutter Plugin |
-| Networking | Dio — vẫn dùng để gọi Google Maps API và VNPay API trực tiếp từ app khi cần, nhưng phần lớn dữ liệu (Users, Courts, Bookings...) đọc/ghi thẳng qua **Firestore SDK**, không qua REST API trung gian tự viết |
+| Networking | Dio — dùng để gọi Cloudinary upload API, Google Maps API, và Cloudflare Worker (VNPay) trực tiếp từ app khi cần, nhưng phần lớn dữ liệu (Users, Courts, Bookings...) đọc/ghi thẳng qua **Firestore SDK**, không qua REST API trung gian tự viết |
 
-**Lý do đổi**: Loại bỏ hoàn toàn nhu cầu tự viết REST API, tự quản lý JWT, tự deploy server, tự lo migration database — những phần này là nguồn gây quá tải kiến thức cho người mới. Firebase lo sẵn Auth + Database + Storage; Cloud Functions chỉ cần cho đúng 1 việc bắt buộc phải có backend: xác nhận thanh toán VNPay an toàn (không thể làm việc này chỉ từ app di động).
+**Lý do đổi (Firebase)**: Loại bỏ hoàn toàn nhu cầu tự viết REST API, tự quản lý JWT, tự deploy server, tự lo migration database — những phần này là nguồn gây quá tải kiến thức cho người mới. Firebase lo sẵn Auth + Database; Cloudflare Workers chỉ cần cho đúng 1 việc bắt buộc phải có backend: xác nhận thanh toán VNPay an toàn (không thể làm việc này chỉ từ app di động).
+
+**Lý do đổi (Cloudinary/Cloudflare thay vì Firebase Storage/Functions)**: Toàn bộ project ưu tiên **0đ chi phí, 0 rủi ro phí, không cần nhập thẻ ở bất kỳ đâu** — đây là yêu cầu cứng của người dùng, không phải tối ưu kỹ thuật.
 
 ## Mô hình tài khoản & phân quyền
 
@@ -39,6 +50,7 @@ Dự án BAN ĐẦU dự định tự viết backend bằng NestJS + Prisma + Po
 - Tài khoản Owner đăng ký xong ở trạng thái `pending`, phải chờ Admin duyệt (`approved`/`rejected`) mới dùng được. Từ chối bắt buộc nhập lý do. Duyệt miễn phí (MVP).
 - User field `status`: `active | pending | rejected | locked`
 - Phân quyền dữ liệu dùng **Firestore Security Rules** (không phải middleware tự viết như backend truyền thống) — VD chỉ Owner đúng chủ sân mới sửa được document sân đó
+- Ảnh (court, avatar) upload thẳng lên **Cloudinary** từ app (unsigned upload preset hoặc ký chữ ký đơn giản), lưu URL trả về vào field tương ứng trong Firestore document
 
 ## Business Logic bắt buộc hiểu đúng (không được đơn giản hóa)
 
@@ -54,9 +66,9 @@ Dự án BAN ĐẦU dự định tự viết backend bằng NestJS + Prisma + Po
 - Hủy < 6 tiếng → không hoàn
 - Sân `isOutdoor = true` + mưa → hoàn 100% ngay bất kể thời điểm, do Owner tự đánh dấu (không cần Admin duyệt lại)
 
-### Thanh toán VNPay (phần duy nhất bắt buộc cần Cloud Function, giải thích kỹ khi tới)
-- Cloud Function 1: tạo URL thanh toán VNPay
-- Cloud Function 2 (HTTP trigger, đóng vai trò webhook): nhận IPN callback từ VNPay, verify signature, cập nhật Firestore — **không tin kết quả redirect từ client**
+### Thanh toán VNPay (phần duy nhất bắt buộc cần backend riêng, giải thích kỹ khi tới)
+- Cloudflare Worker 1: tạo URL thanh toán VNPay
+- Cloudflare Worker 2 (route riêng, đóng vai trò webhook): nhận IPN callback từ VNPay, verify signature, cập nhật Firestore (dùng Firebase Admin REST API hoặc firebase-admin qua Cloudflare Workers-compatible client) — **không tin kết quả redirect từ client**
 - Xử lý idempotency: IPN có thể gọi lặp, check đã xử lý transaction đó chưa trước khi cập nhật lại
 
 ## Danh sách tính năng theo role

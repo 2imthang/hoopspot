@@ -2,7 +2,9 @@
 
 ### Chiến lược: Vibe code là chính, chỉ dừng lại hiểu sâu ở vài điểm thực sự cần
 
-> **Đã đổi hướng**: Bỏ backend tự viết (NestJS/Prisma), chuyển sang Firebase (Auth + Firestore + Storage) + Cloud Functions tối thiểu cho thanh toán. Roadmap này thay thế hoàn toàn bản cũ.
+> **Đã đổi hướng lần 1**: Bỏ backend tự viết (NestJS/Prisma), chuyển sang Firebase (Auth + Firestore + Storage) + Cloud Functions tối thiểu cho thanh toán. Roadmap này thay thế hoàn toàn bản cũ.
+>
+> **Đã đổi hướng lần 2**: Bỏ Firebase Storage + Cloud Functions vì bắt buộc gói Blaze (cần thẻ tín dụng). Thay bằng **Cloudinary** (ảnh) và **Cloudflare Workers** (VNPay backend) — cả 2 đều free, không cần thẻ. Firebase chỉ còn giữ Auth + Firestore.
 
 ---
 
@@ -21,7 +23,7 @@
 
 | Task | Nội dung | Ghi chú |
 |---|---|---|
-| TASK-001 | Tạo project trên Firebase Console, bật Authentication (Email/Password + Google), bật Firestore, bật Storage | Tự làm theo hướng dẫn, không cần hiểu sâu |
+| TASK-001 | Tạo project trên Firebase Console, bật Authentication (Email/Password + Google), bật Firestore. Tạo tài khoản Cloudinary (free, không cần thẻ) cho ảnh | Tự làm theo hướng dẫn, không cần hiểu sâu |
 | TASK-002 | Kết nối Flutter với Firebase (FlutterFire CLI, thêm file cấu hình) | Vibe code |
 | TASK-003 | Thiết kế cấu trúc document `users` trong Firestore (role, status) | Vibe code — Firestore không cần schema cứng như SQL, chỉ cần thống nhất cấu trúc field |
 | TASK-004 | Màn Đăng ký (chọn role User/Owner) dùng Firebase Auth | Vibe code |
@@ -43,7 +45,7 @@
 | TASK-009 | Cấu trúc document `courts` (ảnh, giá, tiện ích, vị trí, is_outdoor) | Vibe code |
 | TASK-010 | CRUD sân cho Owner qua Firestore SDK trực tiếp (không qua REST API trung gian) | Vibe code |
 | TASK-011 | Security Rules: chỉ Owner đúng chủ sân mới sửa/xóa được | 🔴 Bắt buộc hiểu (nối tiếp TASK-007) |
-| TASK-012 | Upload ảnh sân lên Firebase Storage | Vibe code |
+| TASK-012 | Upload ảnh sân lên Cloudinary (unsigned upload preset), lưu URL trả về vào Firestore | Vibe code |
 | TASK-013 | Flutter: Home (danh sách sân), Search & Filter | Vibe code |
 | TASK-014 | Cấu trúc document `bookings` (status, expiresAt, courtId, date, timeSlot) | Vibe code |
 | TASK-015 | Tạo booking dùng **Firestore Transaction** để chống đặt trùng slot | 🔴 Bắt buộc hiểu sâu nhất tuần này — test bằng cách bấm đặt 2 lần liên tiếp thật nhanh để tự kiểm chứng |
@@ -57,18 +59,18 @@
 
 ## Tuần 3: Thanh toán VNPay + Hủy/Hoàn tiền
 
-**Mục tiêu**: Thanh toán thật chạy trên sandbox — đây là phần DUY NHẤT cần "viết backend" (Cloud Function), phần còn lại của app không cần.
+**Mục tiêu**: Thanh toán thật chạy trên sandbox — đây là phần DUY NHẤT cần "viết backend" (Cloudflare Worker), phần còn lại của app không cần.
 
 | Task | Nội dung | Ghi chú |
 |---|---|---|
-| TASK-019 | Đăng ký VNPay Sandbox, đọc docs cơ bản (redirect, IPN, refund) | 🔴 Bắt buộc đọc, không vibe được phần hiểu docs |
-| TASK-020 | Viết Cloud Function tạo URL thanh toán VNPay | Vibe code theo docs, đây là function nhỏ (~30-50 dòng), không phải cả hệ thống backend |
-| TASK-021 | Viết Cloud Function xử lý IPN callback: verify signature, cập nhật Firestore | 🔴 Bắt buộc hiểu — đây là điểm quan trọng nhất trong toàn dự án, nhưng chỉ là 1 function duy nhất, không phải nhiều lớp như NestJS |
-| TASK-022 | Xử lý idempotency (IPN gọi lặp) trong Cloud Function | 🔴 Bắt buộc hiểu, gộp chung buổi học với TASK-021 |
+| TASK-019 | Đăng ký VNPay Sandbox, đọc docs cơ bản (redirect, IPN, refund). Tạo project Cloudflare Workers (free, không cần thẻ) | 🔴 Bắt buộc đọc, không vibe được phần hiểu docs |
+| TASK-020 | Viết Cloudflare Worker tạo URL thanh toán VNPay | Vibe code theo docs, đây là function nhỏ (~30-50 dòng), không phải cả hệ thống backend |
+| TASK-021 | Viết Cloudflare Worker xử lý IPN callback: verify signature, cập nhật Firestore (qua Firebase Admin REST API + service account) | 🔴 Bắt buộc hiểu — đây là điểm quan trọng nhất trong toàn dự án, nhưng chỉ là 1 function duy nhất, không phải nhiều lớp như NestJS |
+| TASK-022 | Xử lý idempotency (IPN gọi lặp) trong Cloudflare Worker | 🔴 Bắt buộc hiểu, gộp chung buổi học với TASK-021 |
 | TASK-023 | Flutter: WebView thanh toán, polling trạng thái booking | Vibe code |
 | TASK-024 | Màn "Xác nhận điều khoản" — checkbox bắt buộc trước thanh toán | Vibe code |
-| TASK-025 | Cloud Function hoàn tiền (rule 6 tiếng) gọi VNPay Refund API | Vibe code, đọc hiểu logic 1 lần |
-| TASK-026 | Owner đánh dấu "hủy do mưa" → trigger Cloud Function hoàn tiền | Vibe code |
+| TASK-025 | Cloudflare Worker hoàn tiền (rule 6 tiếng) gọi VNPay Refund API | Vibe code, đọc hiểu logic 1 lần |
+| TASK-026 | Owner đánh dấu "hủy do mưa" → trigger Cloudflare Worker hoàn tiền | Vibe code |
 | TASK-027 | Flutter: Booking History, hủy lịch, xem trạng thái thanh toán | Vibe code |
 
 **Đọc hiểu lại cuối tuần**: Tự trả lời — "Vì sao không tin kết quả redirect từ client mà phải chờ IPN?" Đây gần như chắc chắn sẽ bị hỏi nếu CV ghi thanh toán VNPay.
@@ -106,7 +108,7 @@
 | TASK-039 | Rà coding convention: không hard-code string/color/URL | Vibe code (AI tự review + refactor) |
 | TASK-040 | Dark Mode, Responsive check | Vibe code |
 | TASK-041 | Error handling toàn cục: network error, retry | Vibe code |
-| TASK-042 | Deploy Cloud Functions lên Firebase (`firebase deploy`), test end-to-end | Tự làm, đơn giản hơn nhiều so với deploy NestJS server — chỉ 1 lệnh |
+| TASK-042 | Deploy Cloudflare Workers (`wrangler deploy`), test end-to-end | Tự làm, đơn giản hơn nhiều so với deploy NestJS server — chỉ 1 lệnh |
 
 **Đọc hiểu lại cuối tuần**: Chạy full flow trên bản thật (không phải giả lập) từ đăng ký → đặt sân → thanh toán → hủy → hoàn tiền, ghi lại lỗi phát sinh và tự sửa.
 
@@ -129,7 +131,8 @@
 
 1. "Bạn chống đặt trùng slot sân như thế nào?" → Firestore Transaction, giải thích ngắn gọn cơ chế đọc-kiểm tra-ghi atomic
 2. "Vì sao chọn Firebase thay vì tự viết backend?" → trả lời thật: ưu tiên tốc độ phát triển và độ ổn định cho MVP, tập trung thời gian vào chất lượng UI/UX và business logic ở tầng ứng dụng, thay vì dành phần lớn thời gian cho hạ tầng backend — đây là quyết định kỹ thuật có cân nhắc đánh đổi, không phải né tránh
-3. "Thanh toán online bạn xác nhận kết quả thế nào, có tin vào redirect từ client không?" → nhấn mạnh Cloud Function xử lý IPN + verify signature
+2b. "Vì sao dùng Cloudinary + Cloudflare Workers thay vì Firebase Storage/Cloud Functions luôn cho gọn?" → trả lời thật: Firebase Storage và Cloud Functions từ cuối 2024 bắt buộc gói Blaze (yêu cầu thẻ tín dụng) ngay cả khi dùng trong free quota; dự án ưu tiên 0 chi phí và 0 rủi ro phí cho portfolio cá nhân, nên tách 2 phần đó ra dịch vụ free-tier độc lập không yêu cầu thẻ
+3. "Thanh toán online bạn xác nhận kết quả thế nào, có tin vào redirect từ client không?" → nhấn mạnh Cloudflare Worker xử lý IPN + verify signature
 4. "Firestore Security Rules hoạt động thế nào, khác gì với việc tự viết authorization?" → giải thích ngắn gọn qua ví dụ ownership check
 5. "Clean Architecture bạn áp dụng thế nào dù dùng Firebase?" → chỉ ra vẫn tách Data/Domain/Presentation, lớp Data gọi Firestore SDK thay vì REST API, nhưng domain/presentation không đổi
 6. "Nếu có thêm thời gian, bạn sẽ làm gì tiếp theo?" → có thể nhắc: tự viết 1 backend REST API riêng để so sánh, hoặc thêm Subscription (đã cân nhắc, quyết định bỏ ở bản đầu để ưu tiên chất lượng MVP)
