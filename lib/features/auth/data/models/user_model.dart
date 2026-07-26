@@ -8,6 +8,7 @@ class UserModel extends UserEntity {
     required super.uid,
     required super.email,
     required super.displayName,
+    required super.phone,
     required super.role,
     required super.status,
     super.rejectReason,
@@ -20,6 +21,7 @@ class UserModel extends UserEntity {
       uid: uid,
       email: data['email'] as String,
       displayName: data['displayName'] as String,
+      phone: data['phone'] as String,
       role: UserRole.values.byName(data['role'] as String),
       status: UserStatus.values.byName(data['status'] as String),
       rejectReason: data['rejectReason'] as String?,
@@ -32,6 +34,7 @@ class UserModel extends UserEntity {
     return {
       'email': email,
       'displayName': displayName,
+      'phone': phone,
       'role': role.name,
       'status': status.name,
       'rejectReason': rejectReason,

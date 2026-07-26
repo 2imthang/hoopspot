@@ -8,6 +8,7 @@ class UserEntity extends Equatable {
   final String uid;
   final String email;
   final String displayName;
+  final String phone;
   final UserRole role;
   final UserStatus status;
   final String? rejectReason;
@@ -18,6 +19,7 @@ class UserEntity extends Equatable {
     required this.uid,
     required this.email,
     required this.displayName,
+    required this.phone,
     required this.role,
     required this.status,
     this.rejectReason,
@@ -30,6 +32,7 @@ class UserEntity extends Equatable {
     uid,
     email,
     displayName,
+    phone,
     role,
     status,
     rejectReason,

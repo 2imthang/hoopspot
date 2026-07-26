@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
+import '../../features/auth/di/auth_injection.dart';
 import '../network/dio_client.dart';
 
 final GetIt sl = GetIt.instance;
@@ -12,4 +13,6 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<FlutterSecureStorage>(
     () => const FlutterSecureStorage(),
   );
+
+  initAuthDependencies();
 }
