@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "897502050772-aps3kslmfolv334l6pb8fbs1pmo3lpt5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hoop_spot",
+            "certificate_hash": "ecbe60b0330a646ce3396d79aa339010a5fd0f79"
+          }
+        },
+        {
           "client_id": "897502050772-um7gk24e3q1mqe6c78l1oopc5d4i8dv5.apps.googleusercontent.com",
           "client_type": 3
         }

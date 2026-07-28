@@ -1,57 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
-import '../../domain/entities/user_entity.dart';
-import '../bloc/register_cubit.dart';
+import '../bloc/login_cubit.dart';
 import '../widgets/auth_text_field.dart';
-import '../widgets/role_selector.dart';
-import 'login_page.dart';
+import '../widgets/google_signin_button.dart';
+import 'complete_google_profile_page.dart';
+import 'home_placeholder_page.dart';
+import 'register_page.dart';
 import 'verify_email_page.dart';
 
-class RegisterPage extends StatelessWidget {
-  const RegisterPage({super.key});
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl<RegisterCubit>(),
-      child: const _RegisterView(),
+      create: (_) => sl<LoginCubit>(),
+      child: const _LoginView(),
     );
   }
 }
 
-class _RegisterView extends StatefulWidget {
-  const _RegisterView();
+class _LoginView extends StatefulWidget {
+  const _LoginView();
 
   @override
-  State<_RegisterView> createState() => _RegisterViewState();
+  State<_LoginView> createState() => _LoginViewState();
 }
 
-class _RegisterViewState extends State<_RegisterView> {
+class _LoginViewState extends State<_LoginView> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  UserRole _role = UserRole.user;
 
   @override
   void dispose() {
     _emailController.dispose();
-    _nameController.dispose();
-    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    context.read<RegisterCubit>().submit(
+    context.read<LoginCubit>().loginWithEmail(
       email: _emailController.text.trim(),
       password: _passwordController.text,
-      displayName: _nameController.text.trim(),
-      phone: _phoneController.text.trim(),
-      role: _role,
     );
   }
 
@@ -62,34 +55,35 @@ class _RegisterViewState extends State<_RegisterView> {
     return null;
   }
 
-  String? _validateRequired(String? value) {
-    if (value == null || value.trim().isEmpty) return 'Không được để trống';
-    return null;
-  }
-
-  String? _validatePhone(String? value) {
-    final digitsOnly = value?.replaceAll(' ', '') ?? '';
-    if (!RegExp(r'^0\d{9}$').hasMatch(digitsOnly)) {
-      return 'Số điện thoại không hợp lệ (10 số, bắt đầu bằng 0)';
-    }
-    return null;
-  }
-
   String? _validatePassword(String? value) {
-    if (value == null || value.length < 6) return 'Mật khẩu tối thiểu 6 ký tự';
+    if (value == null || value.isEmpty) return 'Vui lòng nhập mật khẩu';
     return null;
   }
 
-  void _onStateChanged(BuildContext context, RegisterState state) {
-    if (state is RegisterFailure) {
+  void _onStateChanged(BuildContext context, LoginState state) {
+    if (state is LoginFailure) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(state.message)));
     }
-    if (state is RegisterSuccess) {
+    if (state is LoginSuccess) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => VerifyEmailPage(email: state.user.email),
+          builder: (_) => HomePlaceholderPage(user: state.user),
+        ),
+      );
+    }
+    if (state is LoginNeedsVerification) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => VerifyEmailPage(email: state.email),
+        ),
+      );
+    }
+    if (state is LoginNeedsGoogleRoleSelection) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => CompleteGoogleProfilePage(profile: state.profile),
         ),
       );
     }
@@ -99,10 +93,10 @@ class _RegisterViewState extends State<_RegisterView> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: BlocConsumer<RegisterCubit, RegisterState>(
+        child: BlocConsumer<LoginCubit, LoginState>(
           listener: _onStateChanged,
           builder: (context, state) {
-            final isLoading = state is RegisterLoading;
+            final isLoading = state is LoginLoading;
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               child: Form(key: _formKey, child: _buildForm(context, isLoading)),
@@ -117,32 +111,18 @@ class _RegisterViewState extends State<_RegisterView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        IconButton(
-          onPressed: () => Navigator.maybePop(context),
-          icon: const Icon(Icons.arrow_back_ios_new),
-        ),
+        const SizedBox(height: 24),
         Text(
-          'Tạo tài khoản',
+          'Đăng nhập',
           style: Theme.of(
             context,
           ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 24),
-        Text('Bạn là ai?', style: Theme.of(context).textTheme.labelLarge),
-        const SizedBox(height: 8),
-        RoleSelector(
-          selectedRole: _role,
-          onChanged: (role) => setState(() => _role = role),
+        const SizedBox(height: 4),
+        Text(
+          'Chào mừng quay lại HoopSpot',
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
-        if (_role == UserRole.owner) ...[
-          const SizedBox(height: 8),
-          Text(
-            'Tài khoản cần được Admin duyệt trước khi sử dụng',
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: Colors.orange),
-          ),
-        ],
         const SizedBox(height: 24),
         AuthTextField(
           label: 'Email',
@@ -153,28 +133,24 @@ class _RegisterViewState extends State<_RegisterView> {
         ),
         const SizedBox(height: 16),
         AuthTextField(
-          label: 'Họ và tên',
-          hint: 'Nguyễn Văn A',
-          controller: _nameController,
-          validator: _validateRequired,
-        ),
-        const SizedBox(height: 16),
-        AuthTextField(
-          label: 'Số điện thoại',
-          hint: '090 123 4567',
-          controller: _phoneController,
-          keyboardType: TextInputType.phone,
-          validator: _validatePhone,
-        ),
-        const SizedBox(height: 16),
-        AuthTextField(
           label: 'Mật khẩu',
           hint: '••••••••',
           controller: _passwordController,
           obscureText: true,
           validator: _validatePassword,
         ),
-        const SizedBox(height: 32),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Tính năng sẽ có ở bản sau')),
+              );
+            },
+            child: const Text('Quên mật khẩu?'),
+          ),
+        ),
+        const SizedBox(height: 8),
         SizedBox(
           width: double.infinity,
           child: FilledButton(
@@ -185,14 +161,31 @@ class _RegisterViewState extends State<_RegisterView> {
                     width: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Tiếp tục'),
+                : const Text('Đăng nhập'),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            const Expanded(child: Divider()),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text('hoặc', style: Theme.of(context).textTheme.bodySmall),
+            ),
+            const Expanded(child: Divider()),
+          ],
+        ),
+        const SizedBox(height: 20),
+        GoogleSignInButton(
+          onPressed: isLoading
+              ? null
+              : () => context.read<LoginCubit>().loginWithGoogle(),
+        ),
+        const SizedBox(height: 24),
         Center(
           child: TextButton(
-            onPressed: () => Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const LoginPage()),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const RegisterPage()),
             ),
             child: RichText(
               text: TextSpan(
@@ -200,9 +193,9 @@ class _RegisterViewState extends State<_RegisterView> {
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 children: [
-                  const TextSpan(text: 'Đã có tài khoản? '),
+                  const TextSpan(text: 'Chưa có tài khoản? '),
                   TextSpan(
-                    text: 'Đăng nhập',
+                    text: 'Đăng ký',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.bold,

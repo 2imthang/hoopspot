@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
-import 'features/auth/presentation/pages/register_page.dart';
+import 'features/auth/presentation/pages/login_page.dart';
 
 class HoopSpotApp extends StatelessWidget {
   const HoopSpotApp({super.key});
@@ -13,8 +13,9 @@ class HoopSpotApp extends StatelessWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
-      // TODO(TASK-008): replace with Splash -> Login/Home routing.
-      home: const RegisterPage(),
+      // TODO(TASK-008): replace with Splash -> Login/Home routing (auto
+      // sign-in if a session already exists).
+      home: const LoginPage(),
     );
   }
 }
