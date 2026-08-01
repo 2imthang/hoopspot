@@ -49,9 +49,10 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) return 'Vui lòng nhập email';
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) return 'Vui lòng nhập email';
     final regex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-    if (!regex.hasMatch(value)) return 'Email không hợp lệ';
+    if (!regex.hasMatch(trimmed)) return 'Email không hợp lệ';
     return null;
   }
 
@@ -126,6 +127,8 @@ class _LoginViewState extends State<_LoginView> {
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           validator: _validateEmail,
+          autocorrect: false,
+          enableSuggestions: false,
         ),
         const SizedBox(height: 16),
         AuthTextField(
