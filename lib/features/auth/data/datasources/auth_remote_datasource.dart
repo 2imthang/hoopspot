@@ -40,6 +40,8 @@ abstract class AuthRemoteDataSource {
   /// Sets the current (rejected) Owner's status back to `pending` so Admin
   /// can review again, clearing the previous rejection reason.
   Future<UserModel> resubmitOwnerApplication();
+
+  Future<void> sendPasswordResetEmail(String email);
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -214,6 +216,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'rejectReason': null,
     });
     return _fetchUserDoc(firebaseUser.uid);
+  }
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await firebaseAuth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        throw const ServerException(
+          message: 'Không tìm thấy tài khoản với email này',
+        );
+      }
+      throw ServerException(message: _mapFirebaseAuthError(e));
+    }
   }
 
   Future<UserModel> _fetchUserDoc(String uid) async {

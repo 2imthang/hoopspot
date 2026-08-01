@@ -7,6 +7,7 @@ import '../data/repositories/auth_repository_impl.dart';
 import '../domain/repositories/auth_repository.dart';
 import '../domain/usecases/check_email_verified_usecase.dart';
 import '../domain/usecases/complete_google_signup_usecase.dart';
+import '../domain/usecases/forgot_password_usecase.dart';
 import '../domain/usecases/get_current_user_usecase.dart';
 import '../domain/usecases/google_sign_in_usecase.dart';
 import '../domain/usecases/login_usecase.dart';
@@ -16,8 +17,10 @@ import '../domain/usecases/send_email_verification_usecase.dart';
 import '../domain/usecases/sign_out_usecase.dart';
 import '../presentation/bloc/account_status_cubit.dart';
 import '../presentation/bloc/complete_profile_cubit.dart';
+import '../presentation/bloc/forgot_password_cubit.dart';
 import '../presentation/bloc/login_cubit.dart';
 import '../presentation/bloc/register_cubit.dart';
+import '../presentation/bloc/splash_cubit.dart';
 import '../presentation/bloc/verify_email_cubit.dart';
 
 void initAuthDependencies() {
@@ -43,6 +46,7 @@ void initAuthDependencies() {
   sl.registerLazySingleton(() => SignOutUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
   sl.registerLazySingleton(() => ResubmitOwnerApplicationUseCase(sl()));
+  sl.registerLazySingleton(() => ForgotPasswordUseCase(sl()));
 
   sl.registerFactory(() => RegisterCubit(sl()));
   sl.registerFactory(
@@ -64,6 +68,14 @@ void initAuthDependencies() {
   sl.registerFactory(
     () => AccountStatusCubit(
       resubmitOwnerApplicationUseCase: sl(),
+      signOutUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(() => ForgotPasswordCubit(sl()));
+  sl.registerFactory(
+    () => SplashCubit(
+      getCurrentUserUseCase: sl(),
+      checkEmailVerifiedUseCase: sl(),
       signOutUseCase: sl(),
     ),
   );

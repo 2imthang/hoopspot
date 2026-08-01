@@ -6,6 +6,7 @@ import '../widgets/auth_text_field.dart';
 import '../widgets/google_signin_button.dart';
 import '../navigation/route_after_auth.dart';
 import 'complete_google_profile_page.dart';
+import 'forgot_password_page.dart';
 import 'register_page.dart';
 import 'verify_email_page.dart';
 
@@ -137,15 +138,16 @@ class _LoginViewState extends State<_LoginView> {
           controller: _passwordController,
           obscureText: true,
           validator: _validatePassword,
+          autocorrect: false,
+          enableSuggestions: false,
         ),
+        const SizedBox(height: 4),
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Tính năng sẽ có ở bản sau')),
-              );
-            },
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ForgotPasswordPage()),
+            ),
             child: const Text('Quên mật khẩu?'),
           ),
         ),

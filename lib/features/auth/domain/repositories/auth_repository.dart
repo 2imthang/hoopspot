@@ -47,4 +47,8 @@ abstract class AuthRepository {
   /// Sets the current (rejected) Owner's status back to `pending` so Admin
   /// can review again, clearing the previous rejection reason.
   Future<Either<Failure, UserEntity>> resubmitOwnerApplication();
+
+  Future<Either<Failure, void>> sendPasswordResetEmail({
+    required String email,
+  });
 }

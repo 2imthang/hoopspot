@@ -176,6 +176,8 @@ class _RegisterViewState extends State<_RegisterView> {
           controller: _passwordController,
           obscureText: true,
           validator: _validatePassword,
+          autocorrect: false,
+          enableSuggestions: false,
         ),
         const SizedBox(height: 32),
         SizedBox(
