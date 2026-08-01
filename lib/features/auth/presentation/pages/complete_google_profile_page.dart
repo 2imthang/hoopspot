@@ -4,9 +4,9 @@ import '../../../../core/di/injection_container.dart';
 import '../../domain/entities/google_auth_result.dart';
 import '../../domain/entities/user_entity.dart';
 import '../bloc/complete_profile_cubit.dart';
+import '../navigation/route_after_auth.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/role_selector.dart';
-import 'home_placeholder_page.dart';
 
 /// Shown once, right after a brand-new Google account signs in — Google
 /// doesn't ask for role/phone, so we collect them here before creating the
@@ -74,11 +74,7 @@ class _CompleteGoogleProfileViewState
       ).showSnackBar(SnackBar(content: Text(state.message)));
     }
     if (state is CompleteProfileSuccess) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => HomePlaceholderPage(user: state.user),
-        ),
-      );
+      routeAfterAuth(context, state.user);
     }
   }
 

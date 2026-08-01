@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../bloc/verify_email_cubit.dart';
-import 'home_placeholder_page.dart';
+import '../navigation/route_after_auth.dart';
 import 'login_page.dart';
 
 /// Gate screen shown after register/login when the account's email hasn't
@@ -43,11 +43,7 @@ class _VerifyEmailView extends StatelessWidget {
       );
     }
     if (state is VerifyEmailVerified) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => HomePlaceholderPage(user: state.user),
-        ),
-      );
+      routeAfterAuth(context, state.user);
     }
     if (state is VerifyEmailSignedOut) {
       Navigator.of(context).pushReplacement(

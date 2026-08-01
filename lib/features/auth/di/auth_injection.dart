@@ -11,8 +11,10 @@ import '../domain/usecases/get_current_user_usecase.dart';
 import '../domain/usecases/google_sign_in_usecase.dart';
 import '../domain/usecases/login_usecase.dart';
 import '../domain/usecases/register_usecase.dart';
+import '../domain/usecases/resubmit_owner_application_usecase.dart';
 import '../domain/usecases/send_email_verification_usecase.dart';
 import '../domain/usecases/sign_out_usecase.dart';
+import '../presentation/bloc/account_status_cubit.dart';
 import '../presentation/bloc/complete_profile_cubit.dart';
 import '../presentation/bloc/login_cubit.dart';
 import '../presentation/bloc/register_cubit.dart';
@@ -40,6 +42,7 @@ void initAuthDependencies() {
   sl.registerLazySingleton(() => CheckEmailVerifiedUseCase(sl()));
   sl.registerLazySingleton(() => SignOutUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
+  sl.registerLazySingleton(() => ResubmitOwnerApplicationUseCase(sl()));
 
   sl.registerFactory(() => RegisterCubit(sl()));
   sl.registerFactory(
@@ -58,4 +61,10 @@ void initAuthDependencies() {
     ),
   );
   sl.registerFactory(() => CompleteProfileCubit(sl()));
+  sl.registerFactory(
+    () => AccountStatusCubit(
+      resubmitOwnerApplicationUseCase: sl(),
+      signOutUseCase: sl(),
+    ),
+  );
 }

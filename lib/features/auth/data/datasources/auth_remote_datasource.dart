@@ -36,6 +36,10 @@ abstract class AuthRemoteDataSource {
   Future<void> signOut();
 
   Future<UserModel> getCurrentUser();
+
+  /// Sets the current (rejected) Owner's status back to `pending` so Admin
+  /// can review again, clearing the previous rejection reason.
+  Future<UserModel> resubmitOwnerApplication();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -196,6 +200,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (firebaseUser == null) {
       throw const ServerException(message: 'Chưa đăng nhập');
     }
+    return _fetchUserDoc(firebaseUser.uid);
+  }
+
+  @override
+  Future<UserModel> resubmitOwnerApplication() async {
+    final firebaseUser = firebaseAuth.currentUser;
+    if (firebaseUser == null) {
+      throw const ServerException(message: 'Chưa đăng nhập');
+    }
+    await firestore.collection(FirestoreCollections.users).doc(firebaseUser.uid).update({
+      'status': UserStatus.pending.name,
+      'rejectReason': null,
+    });
     return _fetchUserDoc(firebaseUser.uid);
   }
 

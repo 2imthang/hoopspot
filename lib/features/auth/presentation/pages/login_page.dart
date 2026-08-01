@@ -4,8 +4,8 @@ import '../../../../core/di/injection_container.dart';
 import '../bloc/login_cubit.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/google_signin_button.dart';
+import '../navigation/route_after_auth.dart';
 import 'complete_google_profile_page.dart';
-import 'home_placeholder_page.dart';
 import 'register_page.dart';
 import 'verify_email_page.dart';
 
@@ -67,11 +67,7 @@ class _LoginViewState extends State<_LoginView> {
       ).showSnackBar(SnackBar(content: Text(state.message)));
     }
     if (state is LoginSuccess) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => HomePlaceholderPage(user: state.user),
-        ),
-      );
+      routeAfterAuth(context, state.user);
     }
     if (state is LoginNeedsVerification) {
       Navigator.of(context).pushReplacement(

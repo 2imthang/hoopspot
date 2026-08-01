@@ -43,4 +43,8 @@ abstract class AuthRepository {
   /// (email verified, Google profile completed) that need the full profile
   /// but only had a uid/email on hand.
   Future<Either<Failure, UserEntity>> getCurrentUser();
+
+  /// Sets the current (rejected) Owner's status back to `pending` so Admin
+  /// can review again, clearing the previous rejection reason.
+  Future<Either<Failure, UserEntity>> resubmitOwnerApplication();
 }

@@ -122,4 +122,14 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, UserEntity>> resubmitOwnerApplication() async {
+    try {
+      final user = await remoteDataSource.resubmitOwnerApplication();
+      return Right(user);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }
