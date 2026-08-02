@@ -97,4 +97,14 @@ class CourtRepositoryImpl implements CourtRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, List<CourtEntity>>> getVisibleCourts() async {
+    try {
+      final courts = await remoteDataSource.getVisibleCourts();
+      return Right(courts);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }

@@ -35,4 +35,7 @@ abstract class CourtRepository {
   Future<Either<Failure, List<CourtEntity>>> getOwnerCourts();
 
   Future<Either<Failure, CourtEntity>> getCourtById(String courtId);
+
+  /// All non-hidden courts — used by Home/Search for browsing.
+  Future<Either<Failure, List<CourtEntity>>> getVisibleCourts();
 }

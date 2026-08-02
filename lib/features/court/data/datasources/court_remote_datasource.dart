@@ -33,6 +33,8 @@ abstract class CourtRemoteDataSource {
   Future<List<CourtModel>> getOwnerCourts();
 
   Future<CourtModel> getCourtById(String courtId);
+
+  Future<List<CourtModel>> getVisibleCourts();
 }
 
 class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
@@ -148,6 +150,21 @@ class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
       return CourtModel.fromFirestore(doc.id, doc.data()!);
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Không thể tải thông tin sân');
+    }
+  }
+
+  @override
+  Future<List<CourtModel>> getVisibleCourts() async {
+    try {
+      final snapshot = await _courts
+          .where('isHidden', isEqualTo: false)
+          .orderBy('createdAt', descending: true)
+          .get();
+      return snapshot.docs
+          .map((doc) => CourtModel.fromFirestore(doc.id, doc.data()))
+          .toList();
+    } on FirebaseException catch (e) {
+      throw ServerException(message: e.message ?? 'Không thể tải danh sách sân');
     }
   }
 }
