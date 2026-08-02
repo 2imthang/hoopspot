@@ -8,5 +8,17 @@ service cloud.firestore {
       allow read, create, update: if request.auth != null && request.auth.uid == userId;
       allow delete: if false;
     }
+
+    // Any signed-in user can read courts (Home/Search browse them all).
+    // Creating requires the new doc's ownerId to be the caller themself —
+    // updating/deleting requires the EXISTING doc's ownerId to match, so
+    // only the Owner who created a court can ever change or delete it.
+    match /courts/{courtId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && resource.data.ownerId == request.auth.uid;
+    }
   }
 }
