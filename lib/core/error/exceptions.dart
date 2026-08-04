@@ -18,3 +18,11 @@ class NetworkException implements Exception {
 
   const NetworkException({this.message = 'No internet connection'});
 }
+
+/// Thrown by [BookingRemoteDataSource.createBooking] when the requested
+/// (courtId, date, timeSlot) is already held by another pending/confirmed
+/// booking — the Firestore transaction detected this atomically, so it's
+/// a real conflict, not a stale read.
+class SlotUnavailableException implements Exception {
+  const SlotUnavailableException();
+}

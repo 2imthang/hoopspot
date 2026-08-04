@@ -1,6 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import '../../features/auth/di/auth_injection.dart';
+import '../../features/booking/di/booking_injection.dart';
 import '../../features/court/di/court_injection.dart';
 import '../../features/home/di/home_injection.dart';
 import '../network/dio_client.dart';
@@ -23,4 +24,5 @@ Future<void> initDependencies() async {
   initAuthDependencies();
   initCourtDependencies();
   initHomeDependencies();
+  initBookingDependencies();
 }
