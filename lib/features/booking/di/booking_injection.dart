@@ -3,6 +3,7 @@ import '../data/datasources/booking_remote_datasource.dart';
 import '../data/repositories/booking_repository_impl.dart';
 import '../domain/repositories/booking_repository.dart';
 import '../domain/usecases/create_booking_usecase.dart';
+import '../domain/usecases/get_booked_slots_usecase.dart';
 
 void initBookingDependencies() {
   sl.registerLazySingleton<BookingRemoteDataSource>(
@@ -13,4 +14,5 @@ void initBookingDependencies() {
   );
 
   sl.registerLazySingleton(() => CreateBookingUseCase(sl()));
+  sl.registerLazySingleton(() => GetBookedSlotsUseCase(sl()));
 }

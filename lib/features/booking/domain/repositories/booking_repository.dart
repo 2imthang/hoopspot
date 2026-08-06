@@ -14,4 +14,11 @@ abstract class BookingRepository {
     required String timeSlot,
     required int pricePerSlot,
   });
+
+  /// Time slots on [courtId] + [date] that are still actually taken — a
+  /// slot whose 10-minute payment hold already expired counts as free.
+  Future<Either<Failure, List<String>>> getBookedSlots({
+    required String courtId,
+    required String date,
+  });
 }

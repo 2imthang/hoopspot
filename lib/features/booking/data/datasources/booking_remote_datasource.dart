@@ -13,6 +13,14 @@ abstract class BookingRemoteDataSource {
     required String timeSlot,
     required int pricePerSlot,
   });
+
+  /// Time slots on [courtId] + [date] that are still actually taken —
+  /// a `slotLocks` doc whose 10-minute hold already expired is treated as
+  /// free again, exactly like the anti-double-booking transaction does.
+  Future<List<String>> getBookedSlots({
+    required String courtId,
+    required String date,
+  });
 }
 
 class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
@@ -101,6 +109,9 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         tx.set(bookingRef, newBooking.toFirestore());
         tx.set(slotLockRef, {
           'bookingId': newBooking.id,
+          'courtId': courtId,
+          'date': date,
+          'timeSlot': timeSlot,
           'status': newBooking.status.name,
           'expiresAt': Timestamp.fromDate(newBooking.expiresAt!),
         });
@@ -114,6 +125,39 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
       return booking;
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Không thể tạo booking');
+    }
+  }
+
+  @override
+  Future<List<String>> getBookedSlots({
+    required String courtId,
+    required String date,
+  }) async {
+    try {
+      final snapshot = await _slotLocks
+          .where('courtId', isEqualTo: courtId)
+          .where('date', isEqualTo: date)
+          .get();
+
+      final now = DateTime.now();
+      final bookedSlots = <String>[];
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final status = data['status'] as String;
+        final expiresAt = (data['expiresAt'] as Timestamp?)?.toDate();
+        final holdExpired =
+            status == BookingStatus.pendingPayment.name &&
+            expiresAt != null &&
+            expiresAt.isBefore(now);
+        if (!holdExpired) {
+          bookedSlots.add(data['timeSlot'] as String);
+        }
+      }
+      return bookedSlots;
+    } on FirebaseException catch (e) {
+      throw ServerException(
+        message: e.message ?? 'Không thể tải danh sách khung giờ',
+      );
     }
   }
 }
