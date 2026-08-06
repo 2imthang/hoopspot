@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../court/presentation/pages/court_detail_page.dart';
 import '../bloc/search_cubit.dart';
 import '../widgets/court_card.dart';
 
@@ -182,7 +183,16 @@ class _SearchViewState extends State<_SearchView> {
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-            ...results.map((court) => CourtCard(court: court)),
+            ...results.map(
+              (court) => CourtCard(
+                court: court,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => CourtDetailPage(courtId: court.id),
+                  ),
+                ),
+              ),
+            ),
           ],
         );
       },

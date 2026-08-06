@@ -5,6 +5,7 @@ import '../../../../core/usecase/usecase.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../auth/domain/usecases/sign_out_usecase.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../../../court/presentation/pages/court_detail_page.dart';
 import '../bloc/home_cubit.dart';
 import '../widgets/court_card.dart';
 import 'search_page.dart';
@@ -47,6 +48,12 @@ class _HomeViewState extends State<_HomeView> {
   void _openSearch(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const SearchPage()),
+    );
+  }
+
+  void _openCourtDetail(BuildContext context, String courtId) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => CourtDetailPage(courtId: courtId)),
     );
   }
 
@@ -289,7 +296,14 @@ class _HomeViewState extends State<_HomeView> {
         }
         final courts = (state as HomeLoaded).courts;
         return Column(
-          children: courts.map((court) => CourtCard(court: court)).toList(),
+          children: courts
+              .map(
+                (court) => CourtCard(
+                  court: court,
+                  onTap: () => _openCourtDetail(context, court.id),
+                ),
+              )
+              .toList(),
         );
       },
     );

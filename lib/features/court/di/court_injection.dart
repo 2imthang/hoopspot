@@ -8,6 +8,7 @@ import '../domain/usecases/get_court_by_id_usecase.dart';
 import '../domain/usecases/get_owner_courts_usecase.dart';
 import '../domain/usecases/get_visible_courts_usecase.dart';
 import '../domain/usecases/update_court_usecase.dart';
+import '../presentation/bloc/court_detail_cubit.dart';
 
 void initCourtDependencies() {
   sl.registerLazySingleton<CourtRemoteDataSource>(
@@ -21,4 +22,6 @@ void initCourtDependencies() {
   sl.registerLazySingleton(() => GetOwnerCourtsUseCase(sl()));
   sl.registerLazySingleton(() => GetCourtByIdUseCase(sl()));
   sl.registerLazySingleton(() => GetVisibleCourtsUseCase(sl()));
+
+  sl.registerFactory(() => CourtDetailCubit(getCourtByIdUseCase: sl()));
 }

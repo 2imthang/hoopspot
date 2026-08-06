@@ -35,12 +35,14 @@ Firebase Storage và Cloud Functions từ cuối 2024 **bắt buộc nâng cấp
 | Payment Backend | **Cloudflare Workers** (1-2 function nhỏ: tạo URL thanh toán VNPay, xử lý IPN callback, gọi Refund API) — KHÔNG dùng Firebase Cloud Functions (tránh bắt buộc gói Blaze), KHÔNG dựng backend riêng |
 | Payment Gateway | VNPay Sandbox (vẫn tích hợp thật qua Cloudflare Worker, không mock) |
 | Notification | flutter_local_notifications — KHÔNG dùng FCM/Push |
-| Maps | Google Maps Flutter Plugin |
+| Maps | **flutter_map + OpenStreetMap** (bản đồ nhúng trong app, free 100%, không cần API Key) — nút "Chỉ đường" mở app Google Maps thật qua link `https://www.google.com/maps/dir/?...` (không cần API Key/thẻ, chỉ là mở link) |
 | Networking | Dio — dùng để gọi Cloudinary upload API, Google Maps API, và Cloudflare Worker (VNPay) trực tiếp từ app khi cần, nhưng phần lớn dữ liệu (Users, Courts, Bookings...) đọc/ghi thẳng qua **Firestore SDK**, không qua REST API trung gian tự viết |
 
 **Lý do đổi (Firebase)**: Loại bỏ hoàn toàn nhu cầu tự viết REST API, tự quản lý JWT, tự deploy server, tự lo migration database — những phần này là nguồn gây quá tải kiến thức cho người mới. Firebase lo sẵn Auth + Database; Cloudflare Workers chỉ cần cho đúng 1 việc bắt buộc phải có backend: xác nhận thanh toán VNPay an toàn (không thể làm việc này chỉ từ app di động).
 
 **Lý do đổi (Cloudinary/Cloudflare thay vì Firebase Storage/Functions)**: Toàn bộ project ưu tiên **0đ chi phí, 0 rủi ro phí, không cần nhập thẻ ở bất kỳ đâu** — đây là yêu cầu cứng của người dùng, không phải tối ưu kỹ thuật.
+
+**Lý do đổi (flutter_map/OSM thay vì Google Maps Flutter Plugin, quyết định ở TASK-017)**: Google Maps Platform (Maps SDK for Android) bắt buộc bật Billing Account (nhập thẻ) trên Google Cloud để lấy API Key nhúng bản đồ vào app — dù có free credit $200/tháng thừa dùng cho portfolio project, việc này vẫn đi ngược nguyên tắc "không cần thẻ ở bất kỳ đâu" đã chốt từ đầu. flutter_map + OpenStreetMap cho bản đồ nhúng hoàn toàn miễn phí, không cần key/thẻ. Nút "Chỉ đường" vẫn mở app Google Maps thật (qua link, không qua SDK) nên trải nghiệm chỉ đường thực tế không đổi.
 
 ## Mô hình tài khoản & phân quyền
 
