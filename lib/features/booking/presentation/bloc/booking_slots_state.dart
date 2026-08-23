@@ -1,0 +1,79 @@
+part of 'booking_slots_cubit.dart';
+
+abstract class BookingSlotsState extends Equatable {
+  const BookingSlotsState();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class BookingSlotsLoading extends BookingSlotsState {
+  const BookingSlotsLoading();
+}
+
+class BookingSlotsError extends BookingSlotsState {
+  final String message;
+
+  const BookingSlotsError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class BookingSlotsLoaded extends BookingSlotsState {
+  final DateTime date;
+  final List<String> allSlots;
+  final Set<String> bookedSlots;
+  final Set<String> selectedSlots;
+  final bool submitting;
+
+  /// Set once after [BookingSlotsCubit.confirmBooking] holds every selected
+  /// slot successfully — the UI reacts to it once via `BlocListener`.
+  final bool success;
+
+  /// Transient error to surface via SnackBar (e.g. a slot was taken by
+  /// someone else in the meantime) — not part of `props` on purpose so it
+  /// doesn't linger/re-trigger on unrelated rebuilds.
+  final String? message;
+
+  const BookingSlotsLoaded({
+    required this.date,
+    required this.allSlots,
+    required this.bookedSlots,
+    this.selectedSlots = const {},
+    this.submitting = false,
+    this.success = false,
+    this.message,
+  });
+
+  BookingSlotsLoaded copyWith({
+    DateTime? date,
+    List<String>? allSlots,
+    Set<String>? bookedSlots,
+    Set<String>? selectedSlots,
+    bool? submitting,
+    bool success = false,
+    String? message,
+    bool clearMessage = false,
+  }) {
+    return BookingSlotsLoaded(
+      date: date ?? this.date,
+      allSlots: allSlots ?? this.allSlots,
+      bookedSlots: bookedSlots ?? this.bookedSlots,
+      selectedSlots: selectedSlots ?? this.selectedSlots,
+      submitting: submitting ?? this.submitting,
+      success: success,
+      message: clearMessage ? null : (message ?? this.message),
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+    date,
+    allSlots,
+    bookedSlots,
+    selectedSlots,
+    submitting,
+    success,
+  ];
+}

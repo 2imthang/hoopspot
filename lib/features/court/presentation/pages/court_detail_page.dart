@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart' as latlong;
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../booking/presentation/pages/booking_slots_page.dart';
 import '../../domain/entities/court_entity.dart';
 import '../bloc/court_detail_cubit.dart';
 
@@ -80,8 +81,8 @@ class _CourtDetailBody extends StatelessWidget {
   }
 
   void _onBookPressed(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Màn đặt sân sẽ có ở bước tiếp theo')),
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => BookingSlotsPage(court: court)),
     );
   }
 
