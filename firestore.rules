@@ -45,5 +45,16 @@ service cloud.firestore {
       allow read, create, update: if request.auth != null;
       allow delete: if false;
     }
+
+    // Written only by the Cloudflare payment worker (TASK-020/021), which
+    // authenticates as a Firebase service account via the Admin REST API —
+    // that identity bypasses Security Rules entirely, so this block is not
+    // what protects the data. It's here to make the intent explicit: the
+    // Flutter client never reads/writes `payments` directly (no feature
+    // needs it to), everything it needs to show the user is mirrored onto
+    // the `bookings` docs it already has real-time access to.
+    match /payments/{txnRef} {
+      allow read, write: if false;
+    }
   }
 }
