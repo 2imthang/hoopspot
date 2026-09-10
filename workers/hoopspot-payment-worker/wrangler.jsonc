@@ -1,0 +1,8 @@
+{
+	"name": "hoopspot-payment-worker",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-08-23",
+	"observability": {
+		"enabled": true,
+	},
+}
