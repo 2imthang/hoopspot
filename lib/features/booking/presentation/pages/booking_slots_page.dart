@@ -4,13 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../court/domain/entities/court_entity.dart';
-import '../../../payment/presentation/pages/payment_page.dart';
 import '../bloc/booking_slots_cubit.dart';
+import 'terms_confirmation_page.dart';
 
 /// TASK-018 — chọn ngày + 1 hoặc nhiều "ca" (2 tiếng/ca) rồi giữ slot 10
-/// phút qua [BookingSlotsCubit.confirmBooking]. Màn Xác nhận điều khoản
-/// (TASK-024) chưa có nên tạm thời chuyển thẳng sang Thanh toán (TASK-023)
-/// ngay khi giữ slot thành công.
+/// phút qua [BookingSlotsCubit.confirmBooking]. Giữ slot thành công thì
+/// chuyển sang màn Xác nhận điều khoản (TASK-024) trước khi vào Thanh toán.
 class BookingSlotsPage extends StatelessWidget {
   final CourtEntity court;
 
@@ -50,9 +49,12 @@ class _BookingSlotsView extends StatelessWidget {
             if (state.success) {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (_) => PaymentPage(
-                    userId: FirebaseAuth.instance.currentUser!.uid,
+                  builder: (_) => TermsConfirmationPage(
+                    court: court,
+                    date: state.date,
+                    timeSlots: state.confirmedTimeSlots,
                     bookingIds: state.createdBookingIds,
+                    userId: FirebaseAuth.instance.currentUser!.uid,
                   ),
                 ),
               );

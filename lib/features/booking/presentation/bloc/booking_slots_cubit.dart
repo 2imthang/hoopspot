@@ -79,6 +79,7 @@ class BookingSlotsCubit extends Cubit<BookingSlotsState> {
     emit(current.copyWith(submitting: true, clearMessage: true));
 
     final dateKey = formatDateKey(current.date);
+    final selectedSlotsSnapshot = current.selectedSlots.toList();
     final failedSlots = <String>{};
     final createdBookingIds = <String>[];
     for (final slot in current.selectedSlots) {
@@ -112,6 +113,7 @@ class BookingSlotsCubit extends Cubit<BookingSlotsState> {
               submitting: false,
               success: true,
               createdBookingIds: createdBookingIds,
+              confirmedTimeSlots: selectedSlotsSnapshot,
             ),
           );
         } else {

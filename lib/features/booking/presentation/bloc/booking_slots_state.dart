@@ -35,6 +35,11 @@ class BookingSlotsLoaded extends BookingSlotsState {
   /// true, that's what the Payment screen (TASK-023) needs to pay for.
   final List<String> createdBookingIds;
 
+  /// The time slots that were just confirmed — captured before
+  /// [selectedSlots] gets cleared on success, so the Terms Confirmation
+  /// screen (TASK-024) can show what's being paid for without re-fetching.
+  final List<String> confirmedTimeSlots;
+
   /// Transient error to surface via SnackBar (e.g. a slot was taken by
   /// someone else in the meantime) — not part of `props` on purpose so it
   /// doesn't linger/re-trigger on unrelated rebuilds.
@@ -48,6 +53,7 @@ class BookingSlotsLoaded extends BookingSlotsState {
     this.submitting = false,
     this.success = false,
     this.createdBookingIds = const [],
+    this.confirmedTimeSlots = const [],
     this.message,
   });
 
@@ -59,6 +65,7 @@ class BookingSlotsLoaded extends BookingSlotsState {
     bool? submitting,
     bool success = false,
     List<String> createdBookingIds = const [],
+    List<String> confirmedTimeSlots = const [],
     String? message,
     bool clearMessage = false,
   }) {
@@ -70,6 +77,7 @@ class BookingSlotsLoaded extends BookingSlotsState {
       submitting: submitting ?? this.submitting,
       success: success,
       createdBookingIds: createdBookingIds,
+      confirmedTimeSlots: confirmedTimeSlots,
       message: clearMessage ? null : (message ?? this.message),
     );
   }
