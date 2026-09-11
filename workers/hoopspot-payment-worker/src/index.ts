@@ -10,6 +10,8 @@
  *   tới sau khi user nhập thẻ xong. Chỉ là 1 trang tĩnh để WebView NHẬN BIẾT
  *   luồng VNPay đã kết thúc — app không đọc/tin bất kỳ nội dung gì ở đây,
  *   trạng thái thật luôn lấy từ Firestore (đã được IPN cập nhật).
+ * - POST /refund — TASK-025: hủy 1 booking đã `confirmed`, áp rule "hủy ≥ 6
+ *   tiếng trước giờ chơi mới hoàn tiền", rồi gọi VNPay Refund API thật.
  *
  * Secrets (vnp_TmnCode/vnp_HashSecret, Firebase service account) đến từ
  * `.dev.vars` khi chạy local, và từ `wrangler secret put` khi deploy thật —
@@ -23,6 +25,7 @@ interface Env {
 }
 
 import { handleCreatePaymentUrl } from './handlers/create-payment-url';
+import { handleRefund } from './handlers/refund';
 import { handleVnpayIpn } from './handlers/vnpay-ipn';
 
 export default {
@@ -42,6 +45,10 @@ export default {
 				'<!doctype html><html><body style="font-family:sans-serif;text-align:center;padding-top:40px">Đang xử lý kết quả thanh toán, quay lại app HoopSpot…</body></html>',
 				{ headers: { 'Content-Type': 'text/html; charset=utf-8' } },
 			);
+		}
+
+		if (request.method === 'POST' && url.pathname === '/refund') {
+			return handleRefund(request, env);
 		}
 
 		return new Response('Not found', { status: 404 });

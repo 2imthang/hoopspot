@@ -12,7 +12,7 @@ const IncomingRequest = Request<unknown, IncomingRequestCfProperties>;
 // giả lập, vì đây đụng tới 2 API bên thứ 3 thật (VNPay, Google OAuth2).
 
 describe('unknown routes', () => {
-	it('404s on anything other than the 2 known routes', async () => {
+	it('404s on anything other than the known routes', async () => {
 		const request = new IncomingRequest('http://example.com/');
 		const ctx = createExecutionContext();
 		const response = await worker.fetch(request, env, ctx);
@@ -48,5 +48,31 @@ describe('GET /vnpay-ipn', () => {
 		const body = (await response.json()) as { RspCode: string; Message: string };
 		expect(body.RspCode).toBe('97');
 		expect(body.Message).toBe('Fail checksum');
+	});
+});
+
+describe('POST /refund', () => {
+	it('400s when required fields are missing', async () => {
+		const request = new IncomingRequest('http://example.com/refund', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ userId: 'u1' }),
+		});
+		const ctx = createExecutionContext();
+		const response = await worker.fetch(request, env, ctx);
+		await waitOnExecutionContext(ctx);
+		expect(response.status).toBe(400);
+	});
+
+	it('404s when the booking does not exist', async () => {
+		const request = new IncomingRequest('http://example.com/refund', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ userId: 'u1', bookingId: 'does-not-exist-' + Date.now() }),
+		});
+		const ctx = createExecutionContext();
+		const response = await worker.fetch(request, env, ctx);
+		await waitOnExecutionContext(ctx);
+		expect(response.status).toBe(404);
 	});
 });

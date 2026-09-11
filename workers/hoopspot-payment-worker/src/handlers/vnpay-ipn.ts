@@ -54,11 +54,24 @@ export async function handleVnpayIpn(url: URL, env: Env): Promise<Response> {
 		buildWrite(
 			projectId,
 			`payments/${txnRef}`,
-			{ status: isSuccess ? 'success' : 'failed', vnp_TransactionNo: params['vnp_TransactionNo'] ?? '' },
-			['status', 'vnp_TransactionNo'],
+			{
+				status: isSuccess ? 'success' : 'failed',
+				vnp_TransactionNo: params['vnp_TransactionNo'] ?? '',
+				// `vnp_PayDate` (thời điểm giao dịch gốc) là tham số bắt buộc khi
+				// gọi Refund API sau này (TASK-025) — lưu lại ngay lúc này vì đây
+				// là nơi duy nhất VNPay gửi giá trị đó cho mình.
+				vnp_PayDate: params['vnp_PayDate'] ?? '',
+			},
+			['status', 'vnp_TransactionNo', 'vnp_PayDate'],
 		),
 		...bookingIds.map((bookingId) =>
-			buildWrite(projectId, `bookings/${bookingId}`, { status: isSuccess ? 'confirmed' : 'cancelled' }, ['status']),
+			buildWrite(
+				projectId,
+				`bookings/${bookingId}`,
+				// `txnRef` trỏ ngược lại payment gốc — TASK-025 cần để tra vnp_TransactionNo/vnp_PayDate khi hoàn tiền.
+				isSuccess ? { status: 'confirmed', txnRef } : { status: 'cancelled' },
+				isSuccess ? ['status', 'txnRef'] : ['status'],
+			),
 		),
 	]);
 
