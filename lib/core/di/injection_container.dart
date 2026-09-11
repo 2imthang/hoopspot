@@ -4,6 +4,7 @@ import '../../features/auth/di/auth_injection.dart';
 import '../../features/booking/di/booking_injection.dart';
 import '../../features/court/di/court_injection.dart';
 import '../../features/home/di/home_injection.dart';
+import '../../features/payment/di/payment_injection.dart';
 import '../network/dio_client.dart';
 import '../services/image_upload_service.dart';
 
@@ -25,4 +26,5 @@ Future<void> initDependencies() async {
   initCourtDependencies();
   initHomeDependencies();
   initBookingDependencies();
+  initPaymentDependencies();
 }

@@ -49,4 +49,9 @@ class BookingRepositoryImpl implements BookingRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Stream<List<BookingEntity>> watchBookingsStatus(List<String> bookingIds) {
+    return remoteDataSource.watchBookingsStatus(bookingIds);
+  }
 }

@@ -21,6 +21,8 @@ abstract class BookingRemoteDataSource {
     required String courtId,
     required String date,
   });
+
+  Stream<List<BookingModel>> watchBookingsStatus(List<String> bookingIds);
 }
 
 class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
@@ -159,5 +161,23 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         message: e.message ?? 'Không thể tải danh sách khung giờ',
       );
     }
+  }
+
+  @override
+  Stream<List<BookingModel>> watchBookingsStatus(List<String> bookingIds) {
+    // `whereIn` caps at 30 values — plenty for 1 checkout's worth of slots.
+    // Also filtering by `userId` isn't just belt-and-suspenders here: the
+    // `bookings` security rule checks `resource.data.userId`, and Firestore
+    // rejects a list query with `permission-denied` unless that same field
+    // is constrained by an equality filter in the query itself.
+    return _bookings
+        .where(FieldPath.documentId, whereIn: bookingIds)
+        .where('userId', isEqualTo: _currentUserId)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => BookingModel.fromFirestore(doc.id, doc.data()))
+              .toList(),
+        );
   }
 }

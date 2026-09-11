@@ -31,6 +31,10 @@ class BookingSlotsLoaded extends BookingSlotsState {
   /// slot successfully — the UI reacts to it once via `BlocListener`.
   final bool success;
 
+  /// IDs of the bookings just created — only meaningful when [success] is
+  /// true, that's what the Payment screen (TASK-023) needs to pay for.
+  final List<String> createdBookingIds;
+
   /// Transient error to surface via SnackBar (e.g. a slot was taken by
   /// someone else in the meantime) — not part of `props` on purpose so it
   /// doesn't linger/re-trigger on unrelated rebuilds.
@@ -43,6 +47,7 @@ class BookingSlotsLoaded extends BookingSlotsState {
     this.selectedSlots = const {},
     this.submitting = false,
     this.success = false,
+    this.createdBookingIds = const [],
     this.message,
   });
 
@@ -53,6 +58,7 @@ class BookingSlotsLoaded extends BookingSlotsState {
     Set<String>? selectedSlots,
     bool? submitting,
     bool success = false,
+    List<String> createdBookingIds = const [],
     String? message,
     bool clearMessage = false,
   }) {
@@ -63,6 +69,7 @@ class BookingSlotsLoaded extends BookingSlotsState {
       selectedSlots: selectedSlots ?? this.selectedSlots,
       submitting: submitting ?? this.submitting,
       success: success,
+      createdBookingIds: createdBookingIds,
       message: clearMessage ? null : (message ?? this.message),
     );
   }

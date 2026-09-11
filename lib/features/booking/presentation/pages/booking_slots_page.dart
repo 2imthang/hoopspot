@@ -1,13 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../court/domain/entities/court_entity.dart';
+import '../../../payment/presentation/pages/payment_page.dart';
 import '../bloc/booking_slots_cubit.dart';
 
 /// TASK-018 — chọn ngày + 1 hoặc nhiều "ca" (2 tiếng/ca) rồi giữ slot 10
-/// phút qua [BookingSlotsCubit.confirmBooking]. Màn Xác nhận điều khoản +
-/// Thanh toán (TASK-023/024) sẽ tiếp nối sau khi giữ slot thành công.
+/// phút qua [BookingSlotsCubit.confirmBooking]. Màn Xác nhận điều khoản
+/// (TASK-024) chưa có nên tạm thời chuyển thẳng sang Thanh toán (TASK-023)
+/// ngay khi giữ slot thành công.
 class BookingSlotsPage extends StatelessWidget {
   final CourtEntity court;
 
@@ -45,14 +48,14 @@ class _BookingSlotsView extends StatelessWidget {
               );
             }
             if (state.success) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Đã giữ slot trong 10 phút. Xác nhận điều khoản & thanh toán sẽ có ở bước tiếp theo.',
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (_) => PaymentPage(
+                    userId: FirebaseAuth.instance.currentUser!.uid,
+                    bookingIds: state.createdBookingIds,
                   ),
                 ),
               );
-              Navigator.of(context).pop();
             }
           },
           builder: (context, state) {

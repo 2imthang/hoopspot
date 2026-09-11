@@ -21,4 +21,9 @@ abstract class BookingRepository {
     required String courtId,
     required String date,
   });
+
+  /// Real-time updates for [bookingIds] — used by the Payment screen
+  /// (TASK-023) to detect the moment IPN (TASK-021) flips a booking to
+  /// `confirmed`/`cancelled`, instead of a manually-timed polling loop.
+  Stream<List<BookingEntity>> watchBookingsStatus(List<String> bookingIds);
 }

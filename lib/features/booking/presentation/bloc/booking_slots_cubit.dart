@@ -80,6 +80,7 @@ class BookingSlotsCubit extends Cubit<BookingSlotsState> {
 
     final dateKey = formatDateKey(current.date);
     final failedSlots = <String>{};
+    final createdBookingIds = <String>[];
     for (final slot in current.selectedSlots) {
       final result = await createBookingUseCase(
         CreateBookingParams(
@@ -90,7 +91,10 @@ class BookingSlotsCubit extends Cubit<BookingSlotsState> {
           pricePerSlot: court.pricePerSlot,
         ),
       );
-      result.fold((failure) => failedSlots.add(slot), (_) {});
+      result.fold(
+        (failure) => failedSlots.add(slot),
+        (booking) => createdBookingIds.add(booking.id),
+      );
     }
 
     final refreshed = await getBookedSlotsUseCase(
@@ -107,6 +111,7 @@ class BookingSlotsCubit extends Cubit<BookingSlotsState> {
               selectedSlots: const {},
               submitting: false,
               success: true,
+              createdBookingIds: createdBookingIds,
             ),
           );
         } else {
