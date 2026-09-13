@@ -12,6 +12,9 @@
  *   trạng thái thật luôn lấy từ Firestore (đã được IPN cập nhật).
  * - POST /refund — TASK-025: hủy 1 booking đã `confirmed`, áp rule "hủy ≥ 6
  *   tiếng trước giờ chơi mới hoàn tiền", rồi gọi VNPay Refund API thật.
+ * - POST /rain-cancel — TASK-026: Owner đánh dấu hủy do mưa (chỉ sân ngoài
+ *   trời, hoàn 100% bất kể thời điểm) — dùng lại chung logic gọi VNPay
+ *   Refund với /refund, khác nhau ở điều kiện được phép hủy.
  *
  * Secrets (vnp_TmnCode/vnp_HashSecret, Firebase service account) đến từ
  * `.dev.vars` khi chạy local, và từ `wrangler secret put` khi deploy thật —
@@ -25,6 +28,7 @@ interface Env {
 }
 
 import { handleCreatePaymentUrl } from './handlers/create-payment-url';
+import { handleRainCancel } from './handlers/rain-cancel';
 import { handleRefund } from './handlers/refund';
 import { handleVnpayIpn } from './handlers/vnpay-ipn';
 
@@ -49,6 +53,10 @@ export default {
 
 		if (request.method === 'POST' && url.pathname === '/refund') {
 			return handleRefund(request, env);
+		}
+
+		if (request.method === 'POST' && url.pathname === '/rain-cancel') {
+			return handleRainCancel(request, env);
 		}
 
 		return new Response('Not found', { status: 404 });

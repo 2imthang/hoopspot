@@ -76,3 +76,29 @@ describe('POST /refund', () => {
 		expect(response.status).toBe(404);
 	});
 });
+
+describe('POST /rain-cancel', () => {
+	it('400s when required fields are missing', async () => {
+		const request = new IncomingRequest('http://example.com/rain-cancel', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ ownerId: 'o1' }),
+		});
+		const ctx = createExecutionContext();
+		const response = await worker.fetch(request, env, ctx);
+		await waitOnExecutionContext(ctx);
+		expect(response.status).toBe(400);
+	});
+
+	it('404s when the booking does not exist', async () => {
+		const request = new IncomingRequest('http://example.com/rain-cancel', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ ownerId: 'o1', bookingId: 'does-not-exist-' + Date.now() }),
+		});
+		const ctx = createExecutionContext();
+		const response = await worker.fetch(request, env, ctx);
+		await waitOnExecutionContext(ctx);
+		expect(response.status).toBe(404);
+	});
+});
