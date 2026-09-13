@@ -5,6 +5,7 @@ import '../../../../core/usecase/usecase.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../auth/domain/usecases/sign_out_usecase.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../../../booking/presentation/pages/booking_history_page.dart';
 import '../../../court/presentation/pages/court_detail_page.dart';
 import '../bloc/home_cubit.dart';
 import '../widgets/court_card.dart';
@@ -68,11 +69,7 @@ class _HomeViewState extends State<_HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: _selectedIndex == 0
-            ? _buildHomeBody(context)
-            : _buildComingSoonTab(context),
-      ),
+      body: SafeArea(child: _buildBody(context)),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) =>
@@ -83,6 +80,17 @@ class _HomeViewState extends State<_HomeView> {
         ],
       ),
     );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildHomeBody(context);
+      case 2:
+        return BookingHistoryPage(userId: widget.user.uid);
+      default:
+        return _buildComingSoonTab(context);
+    }
   }
 
   Widget _buildComingSoonTab(BuildContext context) {

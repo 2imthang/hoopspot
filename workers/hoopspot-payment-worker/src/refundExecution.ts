@@ -42,6 +42,29 @@ export async function findConfirmedPayment(
 
 export type CancelReason = 'user_cancel' | 'rain';
 
+// functional-spec 4.5.B: hủy < 6 tiếng trước giờ chơi VẪN được hủy (nhả
+// slot lại), chỉ là KHÔNG hoàn tiền — không gọi VNPay, không phải từ chối
+// toàn bộ yêu cầu hủy.
+export async function cancelWithoutRefund(
+	projectId: string,
+	accessToken: string,
+	bookingId: string,
+): Promise<Response> {
+	await commitWrites(projectId, accessToken, [
+		buildWrite(
+			projectId,
+			`bookings/${bookingId}`,
+			{ status: 'cancelled', refundStatus: 'not_eligible', cancelReason: 'user_cancel' },
+			['status', 'refundStatus', 'cancelReason'],
+		),
+	]);
+	return Response.json({
+		cancelled: true,
+		refunded: false,
+		message: 'Đã hủy nhưng không hoàn tiền vì hủy trong vòng 6 tiếng trước giờ chơi',
+	});
+}
+
 export interface ExecuteRefundParams {
 	projectId: string;
 	accessToken: string;

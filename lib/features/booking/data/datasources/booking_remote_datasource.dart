@@ -23,6 +23,10 @@ abstract class BookingRemoteDataSource {
   });
 
   Stream<List<BookingModel>> watchBookingsStatus(List<String> bookingIds);
+
+  /// Toàn bộ booking của 1 user, mới nhất trước — dùng cho Booking History
+  /// (TASK-027).
+  Stream<List<BookingModel>> watchMyBookings(String userId);
 }
 
 class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
@@ -173,6 +177,19 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     return _bookings
         .where(FieldPath.documentId, whereIn: bookingIds)
         .where('userId', isEqualTo: _currentUserId)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => BookingModel.fromFirestore(doc.id, doc.data()))
+              .toList(),
+        );
+  }
+
+  @override
+  Stream<List<BookingModel>> watchMyBookings(String userId) {
+    return _bookings
+        .where('userId', isEqualTo: userId)
+        .orderBy('createdAt', descending: true)
         .snapshots()
         .map(
           (snapshot) => snapshot.docs

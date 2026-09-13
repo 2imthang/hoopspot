@@ -31,6 +31,15 @@ class BookingEntity extends Equatable {
 
   final DateTime createdAt;
 
+  /// Set by the payment Worker (TASK-025/026) once a cancel+refund was
+  /// attempted: `'refunded'` or `'refund_pending'` (VNPay call failed,
+  /// functional-spec says don't leave it ambiguous). Null = never attempted.
+  final String? refundStatus;
+
+  /// `'user_cancel'` or `'rain'` — only set alongside [refundStatus], lets
+  /// Booking History (TASK-027) show *why* a booking was cancelled.
+  final String? cancelReason;
+
   const BookingEntity({
     required this.id,
     required this.userId,
@@ -42,6 +51,8 @@ class BookingEntity extends Equatable {
     required this.status,
     required this.expiresAt,
     required this.createdAt,
+    this.refundStatus,
+    this.cancelReason,
   });
 
   @override
@@ -56,5 +67,7 @@ class BookingEntity extends Equatable {
     status,
     expiresAt,
     createdAt,
+    refundStatus,
+    cancelReason,
   ];
 }

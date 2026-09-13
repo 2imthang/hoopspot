@@ -26,4 +26,16 @@ abstract class BookingRepository {
   /// (TASK-023) to detect the moment IPN (TASK-021) flips a booking to
   /// `confirmed`/`cancelled`, instead of a manually-timed polling loop.
   Stream<List<BookingEntity>> watchBookingsStatus(List<String> bookingIds);
+
+  /// Toàn bộ booking của 1 user — Booking History (TASK-027).
+  Stream<List<BookingEntity>> watchMyBookings(String userId);
+
+  /// Hủy 1 booking đã `confirmed` qua Worker (áp rule ≥6 tiếng + gọi VNPay
+  /// Refund thật — TASK-025). Không tự sửa Firestore ở đây: Worker ghi
+  /// `status`/`refundStatus` thật, [watchMyBookings]/[watchBookingsStatus]
+  /// sẽ tự cập nhật UI qua stream khi Worker ghi xong.
+  Future<Either<Failure, void>> cancelBooking({
+    required String userId,
+    required String bookingId,
+  });
 }

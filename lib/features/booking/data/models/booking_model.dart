@@ -16,6 +16,8 @@ class BookingModel extends BookingEntity {
     required super.status,
     required super.expiresAt,
     required super.createdAt,
+    super.refundStatus,
+    super.cancelReason,
   });
 
   factory BookingModel.fromFirestore(String id, Map<String, dynamic> data) {
@@ -30,6 +32,8 @@ class BookingModel extends BookingEntity {
       status: _statusFromString(data['status'] as String),
       expiresAt: (data['expiresAt'] as Timestamp?)?.toDate(),
       createdAt: (data['createdAt'] as Timestamp).toDate(),
+      refundStatus: data['refundStatus'] as String?,
+      cancelReason: data['cancelReason'] as String?,
     );
   }
 

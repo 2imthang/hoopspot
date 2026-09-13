@@ -1,7 +1,7 @@
 import type { ServiceAccount } from '../lib/google-auth';
 import { getFirestoreAccessToken } from '../lib/google-auth';
 import { getDocument } from '../lib/firestore';
-import { executeRefund, findConfirmedPayment, parseBookingStartTime } from '../refundExecution';
+import { cancelWithoutRefund, executeRefund, findConfirmedPayment, parseBookingStartTime } from '../refundExecution';
 
 interface Env {
 	VNP_TMN_CODE: string;
@@ -52,10 +52,7 @@ export async function handleRefund(request: Request, env: Env): Promise<Response
 	const playStart = parseBookingStartTime(booking.date as string, booking.timeSlot as string);
 	const hoursUntilPlay = (playStart.getTime() - Date.now()) / (1000 * 60 * 60);
 	if (hoursUntilPlay < MIN_HOURS_BEFORE_PLAY_FOR_REFUND) {
-		return Response.json(
-			{ error: 'Hủy trong vòng 6 tiếng trước giờ chơi không được hoàn tiền', hoursUntilPlay },
-			{ status: 409 },
-		);
+		return cancelWithoutRefund(projectId, accessToken, body.bookingId);
 	}
 
 	const found = await findConfirmedPayment(projectId, accessToken, booking);
