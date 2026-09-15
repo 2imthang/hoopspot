@@ -9,6 +9,8 @@ import '../../../booking/presentation/pages/booking_history_page.dart';
 import '../../../court/presentation/pages/court_detail_page.dart';
 import '../../../favorite/presentation/bloc/favorite_cubit.dart';
 import '../../../favorite/presentation/pages/favorites_page.dart';
+import '../../../notification/presentation/pages/notifications_page.dart';
+import '../../../notification/services/booking_reminder_scheduler.dart';
 import '../bloc/home_cubit.dart';
 import '../widgets/court_card.dart';
 import 'search_page.dart';
@@ -65,6 +67,7 @@ class _HomeViewState extends State<_HomeView> {
     // Không xóa để lẫn dữ liệu yêu thích nếu 1 phiên app đăng nhập tài
     // khoản khác sau đó.
     await sl<FavoriteCubit>().setUser(null);
+    sl<BookingReminderScheduler>().stop();
     if (!context.mounted) return;
     Navigator.of(
       context,
@@ -95,6 +98,8 @@ class _HomeViewState extends State<_HomeView> {
         return const FavoritesPage();
       case 2:
         return BookingHistoryPage(userId: widget.user.uid);
+      case 3:
+        return const NotificationsPage();
       default:
         return _buildComingSoonTab(context);
     }
