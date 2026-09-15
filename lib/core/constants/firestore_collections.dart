@@ -12,4 +12,8 @@ class FirestoreCollections {
   /// [BookingRemoteDataSource]/[BookingModel] for how it's used together
   /// with `bookings`).
   static const String slotLocks = 'slotLocks';
+
+  /// One doc per user (doc ID == uid), field `courtIds: string[]` — the
+  /// user's favorited courts (TASK-028).
+  static const String favorites = 'favorites';
 }

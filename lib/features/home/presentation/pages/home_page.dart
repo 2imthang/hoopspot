@@ -7,6 +7,8 @@ import '../../../auth/domain/usecases/sign_out_usecase.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 import '../../../booking/presentation/pages/booking_history_page.dart';
 import '../../../court/presentation/pages/court_detail_page.dart';
+import '../../../favorite/presentation/bloc/favorite_cubit.dart';
+import '../../../favorite/presentation/pages/favorites_page.dart';
 import '../bloc/home_cubit.dart';
 import '../widgets/court_card.dart';
 import 'search_page.dart';
@@ -60,6 +62,9 @@ class _HomeViewState extends State<_HomeView> {
 
   Future<void> _signOut(BuildContext context) async {
     await sl<SignOutUseCase>()(const NoParams());
+    // Không xóa để lẫn dữ liệu yêu thích nếu 1 phiên app đăng nhập tài
+    // khoản khác sau đó.
+    await sl<FavoriteCubit>().setUser(null);
     if (!context.mounted) return;
     Navigator.of(
       context,
@@ -86,6 +91,8 @@ class _HomeViewState extends State<_HomeView> {
     switch (_selectedIndex) {
       case 0:
         return _buildHomeBody(context);
+      case 1:
+        return const FavoritesPage();
       case 2:
         return BookingHistoryPage(userId: widget.user.uid);
       default:

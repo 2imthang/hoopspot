@@ -56,5 +56,11 @@ service cloud.firestore {
     match /payments/{txnRef} {
       allow read, write: if false;
     }
+
+    // A user's favorited courts (TASK-028) — doc ID == their own uid, only
+    // they can ever read/write it.
+    match /favorites/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
   }
 }

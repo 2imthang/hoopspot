@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../court/domain/entities/court_entity.dart';
+import '../../../favorite/presentation/widgets/favorite_button.dart';
 
 /// Reused by Home and Search & Filter to render one court in the list.
 /// Distance is shown as a fixed "--" placeholder for now — real GPS-based
@@ -22,7 +23,20 @@ class CourtCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AspectRatio(aspectRatio: 16 / 9, child: _CourtImage(court: court)),
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  _CourtImage(court: court),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: FavoriteButton(courtId: court.id),
+                  ),
+                ],
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(

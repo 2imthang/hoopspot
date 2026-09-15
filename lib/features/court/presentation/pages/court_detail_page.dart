@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../booking/presentation/pages/booking_slots_page.dart';
+import '../../../favorite/presentation/widgets/favorite_button.dart';
 import '../../domain/entities/court_entity.dart';
 import '../bloc/court_detail_cubit.dart';
 
@@ -95,7 +96,7 @@ class _CourtDetailBody extends StatelessWidget {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              _ImageCarousel(imageUrls: court.imageUrls),
+              _ImageCarousel(courtId: court.id, imageUrls: court.imageUrls),
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -183,9 +184,10 @@ class _CourtDetailBody extends StatelessWidget {
 }
 
 class _ImageCarousel extends StatefulWidget {
+  final String courtId;
   final List<String> imageUrls;
 
-  const _ImageCarousel({required this.imageUrls});
+  const _ImageCarousel({required this.courtId, required this.imageUrls});
 
   @override
   State<_ImageCarousel> createState() => _ImageCarouselState();
@@ -228,6 +230,11 @@ class _ImageCarouselState extends State<_ImageCarousel> {
             icon: Icons.arrow_back,
             onPressed: () => Navigator.of(context).pop(),
           ),
+        ),
+        Positioned(
+          top: 8,
+          right: 8,
+          child: FavoriteButton(courtId: widget.courtId),
         ),
         if (widget.imageUrls.length > 1)
           Positioned(
