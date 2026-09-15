@@ -13,11 +13,17 @@ class CourtDetailLoading extends CourtDetailState {
 
 class CourtDetailLoaded extends CourtDetailState {
   final CourtEntity court;
+  final List<ReviewEntity> reviews;
 
-  const CourtDetailLoaded(this.court);
+  const CourtDetailLoaded(this.court, {this.reviews = const []});
+
+  double get averageRating {
+    if (reviews.isEmpty) return 0;
+    return reviews.map((r) => r.rating).reduce((a, b) => a + b) / reviews.length;
+  }
 
   @override
-  List<Object?> get props => [court];
+  List<Object?> get props => [court, reviews];
 }
 
 class CourtDetailError extends CourtDetailState {

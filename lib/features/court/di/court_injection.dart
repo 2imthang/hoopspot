@@ -1,4 +1,5 @@
 import '../../../core/di/injection_container.dart';
+import '../../review/domain/usecases/get_court_reviews_usecase.dart';
 import '../data/datasources/court_remote_datasource.dart';
 import '../data/repositories/court_repository_impl.dart';
 import '../domain/repositories/court_repository.dart';
@@ -23,5 +24,10 @@ void initCourtDependencies() {
   sl.registerLazySingleton(() => GetCourtByIdUseCase(sl()));
   sl.registerLazySingleton(() => GetVisibleCourtsUseCase(sl()));
 
-  sl.registerFactory(() => CourtDetailCubit(getCourtByIdUseCase: sl()));
+  sl.registerFactory(
+    () => CourtDetailCubit(
+      getCourtByIdUseCase: sl(),
+      getCourtReviewsUseCase: sl<GetCourtReviewsUseCase>(),
+    ),
+  );
 }

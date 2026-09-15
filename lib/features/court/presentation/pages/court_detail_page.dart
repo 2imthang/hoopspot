@@ -7,6 +7,7 @@ import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../booking/presentation/pages/booking_slots_page.dart';
 import '../../../favorite/presentation/widgets/favorite_button.dart';
+import '../../../review/domain/entities/review_entity.dart';
 import '../../domain/entities/court_entity.dart';
 import '../bloc/court_detail_cubit.dart';
 
@@ -55,8 +56,8 @@ class _CourtDetailView extends StatelessWidget {
                 ),
               );
             }
-            final court = (state as CourtDetailLoaded).court;
-            return _CourtDetailBody(court: court);
+            final loaded = state as CourtDetailLoaded;
+            return _CourtDetailBody(court: loaded.court, state: loaded);
           },
         ),
       ),
@@ -66,8 +67,9 @@ class _CourtDetailView extends StatelessWidget {
 
 class _CourtDetailBody extends StatelessWidget {
   final CourtEntity court;
+  final CourtDetailLoaded state;
 
-  const _CourtDetailBody({required this.court});
+  const _CourtDetailBody({required this.court, required this.state});
 
   Future<void> _openDirections(BuildContext context) async {
     final uri = Uri.parse(
@@ -102,11 +104,26 @@ class _CourtDetailBody extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      court.name,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            court.name,
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        if (state.reviews.isNotEmpty) ...[
+                          const Icon(Icons.star, size: 18, color: Colors.orange),
+                          const SizedBox(width: 2),
+                          Text(
+                            '${state.averageRating.toStringAsFixed(1)} (${state.reviews.length})',
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ],
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Row(
@@ -153,6 +170,27 @@ class _CourtDetailBody extends StatelessWidget {
                             .toList(),
                       ),
                     ],
+                    const SizedBox(height: 20),
+                    Text(
+                      'Đánh giá',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    if (state.reviews.isEmpty)
+                      Text(
+                        'Chưa có đánh giá nào',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      )
+                    else
+                      Column(
+                        children: state.reviews
+                            .map((review) => _ReviewCard(review: review))
+                            .toList(),
+                      ),
                     const SizedBox(height: 20),
                     Text(
                       'Vị trí',
@@ -289,6 +327,72 @@ class _CircleIconButton extends StatelessWidget {
       child: IconButton(
         icon: Icon(icon, color: Colors.white),
         onPressed: onPressed,
+      ),
+    );
+  }
+}
+
+class _ReviewCard extends StatelessWidget {
+  final ReviewEntity review;
+
+  const _ReviewCard({required this.review});
+
+  String _initialsOf(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return '?';
+    if (parts.length == 1) return parts.first[0].toUpperCase();
+    return (parts.first[0] + parts.last[0]).toUpperCase();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            backgroundColor: theme.colorScheme.primary,
+            child: Text(
+              _initialsOf(review.userName),
+              style: TextStyle(color: theme.colorScheme.onPrimary),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      review.userName,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Row(
+                      children: List.generate(
+                        5,
+                        (i) => Icon(
+                          i < review.rating ? Icons.star : Icons.star_border,
+                          size: 14,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (review.comment.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(review.comment, style: theme.textTheme.bodyMedium),
+                ],
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -62,5 +62,25 @@ service cloud.firestore {
     match /favorites/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+
+    // Reviews (TASK-029) — doc ID == bookingId, so a 2nd write to the same
+    // booking is an `update` (blocked below), not a `create`: this alone
+    // enforces "mỗi booking chỉ được đánh giá 1 lần" without a separate
+    // flag. Create requires the caller to actually own that booking and it
+    // be `confirmed` — blocks reviewing a court never booked/paid for, per
+    // functional-spec 4.8's edge case ("chặn ở cả UI lẫn backend"). Anyone
+    // signed in can read (Court Detail shows everyone's reviews).
+    match /reviews/{bookingId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+        && request.resource.data.comment is string
+        && request.resource.data.comment.size() <= 500
+        && get(/databases/$(database)/documents/bookings/$(bookingId)).data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/bookings/$(bookingId)).data.status == 'confirmed';
+      allow update, delete: if false;
+    }
   }
 }

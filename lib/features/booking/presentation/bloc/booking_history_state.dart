@@ -15,10 +15,23 @@ class BookingHistoryItem extends Equatable {
   final BookingEntity booking;
   final String courtName;
 
-  const BookingHistoryItem({required this.booking, required this.courtName});
+  /// Slot đã qua giờ chơi chưa (giờ VN) — quyết định hiện "Hủy đặt sân" hay
+  /// "Viết đánh giá" cho booking `confirmed` (TASK-029).
+  final bool hasSlotEnded;
+
+  /// Đã có review cho booking này chưa (TASK-029) — ẩn nút "Viết đánh giá"
+  /// nếu đã đánh giá rồi.
+  final bool hasReviewed;
+
+  const BookingHistoryItem({
+    required this.booking,
+    required this.courtName,
+    required this.hasSlotEnded,
+    required this.hasReviewed,
+  });
 
   @override
-  List<Object?> get props => [booking, courtName];
+  List<Object?> get props => [booking, courtName, hasSlotEnded, hasReviewed];
 }
 
 class BookingHistoryLoaded extends BookingHistoryState {

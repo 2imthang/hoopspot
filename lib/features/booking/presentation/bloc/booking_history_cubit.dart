@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../court/domain/usecases/get_court_by_id_usecase.dart';
+import '../../../review/domain/usecases/get_my_reviewed_booking_ids_usecase.dart';
 import '../../domain/entities/booking_entity.dart';
 import '../../domain/usecases/cancel_booking_usecase.dart';
 import '../../domain/usecases/watch_my_bookings_usecase.dart';
@@ -19,9 +20,11 @@ class BookingHistoryCubit extends Cubit<BookingHistoryState> {
   final WatchMyBookingsUseCase watchMyBookingsUseCase;
   final GetCourtByIdUseCase getCourtByIdUseCase;
   final CancelBookingUseCase cancelBookingUseCase;
+  final GetMyReviewedBookingIdsUseCase getMyReviewedBookingIdsUseCase;
 
   StreamSubscription<List<BookingEntity>>? _subscription;
   final Map<String, String> _courtNames = {};
+  Set<String> _reviewedBookingIds = {};
   List<BookingEntity> _allBookings = const [];
   BookingHistoryFilter _filter = BookingHistoryFilter.all;
 
@@ -30,6 +33,7 @@ class BookingHistoryCubit extends Cubit<BookingHistoryState> {
     required this.watchMyBookingsUseCase,
     required this.getCourtByIdUseCase,
     required this.cancelBookingUseCase,
+    required this.getMyReviewedBookingIdsUseCase,
   }) : super(const BookingHistoryLoading()) {
     _subscription = watchMyBookingsUseCase(userId).listen(_onBookingsUpdate);
   }
@@ -46,6 +50,20 @@ class BookingHistoryCubit extends Cubit<BookingHistoryState> {
       result.fold((_) {}, (court) => _courtNames[courtId] = court.name);
     }
 
+    await _loadReviewedBookingIds();
+    _emit();
+  }
+
+  Future<void> _loadReviewedBookingIds() async {
+    final result = await getMyReviewedBookingIdsUseCase(userId);
+    result.fold((_) {}, (ids) => _reviewedBookingIds = ids);
+  }
+
+  /// Gọi sau khi [WriteReviewPage] gửi đánh giá thành công — ghi review
+  /// không đổi `bookings` doc nên stream không tự đẩy cập nhật, phải refetch
+  /// thủ công để ẩn nút "Viết đánh giá" ngay.
+  Future<void> refreshReviewedIds() async {
+    await _loadReviewedBookingIds();
     _emit();
   }
 
@@ -91,6 +109,8 @@ class BookingHistoryCubit extends Cubit<BookingHistoryState> {
           (booking) => BookingHistoryItem(
             booking: booking,
             courtName: _courtNames[booking.courtId] ?? 'Sân bóng rổ',
+            hasSlotEnded: _hasSlotEnded(booking),
+            hasReviewed: _reviewedBookingIds.contains(booking.id),
           ),
         )
         .toList();

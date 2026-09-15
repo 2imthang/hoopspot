@@ -16,4 +16,9 @@ class FirestoreCollections {
   /// One doc per user (doc ID == uid), field `courtIds: string[]` — the
   /// user's favorited courts (TASK-028).
   static const String favorites = 'favorites';
+
+  /// One doc per booking (doc ID == bookingId) — enforces "mỗi booking chỉ
+  /// được đánh giá 1 lần" (TASK-029) via the doc ID itself, no separate
+  /// "already reviewed" flag needed.
+  static const String reviews = 'reviews';
 }

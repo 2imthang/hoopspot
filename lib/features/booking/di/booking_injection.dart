@@ -2,6 +2,7 @@ import '../../../core/di/injection_container.dart';
 import '../../../core/network/dio_client.dart';
 import '../../court/domain/entities/court_entity.dart';
 import '../../court/domain/usecases/get_court_by_id_usecase.dart';
+import '../../review/domain/usecases/get_my_reviewed_booking_ids_usecase.dart';
 import '../data/datasources/booking_refund_remote_datasource.dart';
 import '../data/datasources/booking_remote_datasource.dart';
 import '../data/repositories/booking_repository_impl.dart';
@@ -45,6 +46,7 @@ void initBookingDependencies() {
       watchMyBookingsUseCase: sl(),
       getCourtByIdUseCase: sl<GetCourtByIdUseCase>(),
       cancelBookingUseCase: sl(),
+      getMyReviewedBookingIdsUseCase: sl<GetMyReviewedBookingIdsUseCase>(),
     ),
   );
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../review/presentation/pages/write_review_page.dart';
 import '../../domain/entities/booking_entity.dart';
 import '../bloc/booking_history_cubit.dart';
 
@@ -81,6 +82,23 @@ class _BookingHistoryView extends StatelessWidget {
           cancelling: loaded.cancellingBookingId == item.booking.id,
           onCancel: () =>
               context.read<BookingHistoryCubit>().cancelBooking(item.booking.id),
+          onWriteReview: () async {
+            final cubit = context.read<BookingHistoryCubit>();
+            final reviewed = await Navigator.of(context).push<bool>(
+              MaterialPageRoute(
+                builder: (_) => WriteReviewPage(
+                  bookingId: item.booking.id,
+                  courtId: item.booking.courtId,
+                  courtName: item.courtName,
+                  date: item.booking.date,
+                  timeSlot: item.booking.timeSlot,
+                ),
+              ),
+            );
+            if (reviewed == true) {
+              await cubit.refreshReviewedIds();
+            }
+          },
         );
       },
     );
@@ -130,18 +148,22 @@ class _BookingCard extends StatelessWidget {
   final BookingHistoryItem item;
   final bool cancelling;
   final VoidCallback onCancel;
+  final VoidCallback onWriteReview;
 
   const _BookingCard({
     required this.item,
     required this.cancelling,
     required this.onCancel,
+    required this.onWriteReview,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final booking = item.booking;
-    final canCancel = booking.status == BookingStatus.confirmed;
+    final isConfirmed = booking.status == BookingStatus.confirmed;
+    final canCancel = isConfirmed && !item.hasSlotEnded;
+    final canReview = isConfirmed && item.hasSlotEnded && !item.hasReviewed;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -186,6 +208,16 @@ class _BookingCard extends StatelessWidget {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Text('Hủy đặt sân'),
+              ),
+            ),
+          ],
+          if (canReview) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: onWriteReview,
+                child: const Text('Viết đánh giá'),
               ),
             ),
           ],
