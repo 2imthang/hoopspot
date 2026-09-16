@@ -6,6 +6,7 @@ import '../../../auth/domain/entities/user_entity.dart';
 import '../../../auth/domain/usecases/sign_out_usecase.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 import '../../../booking/presentation/pages/booking_history_page.dart';
+import '../../../booking/presentation/pages/owner_bookings_page.dart';
 import '../../../court/presentation/pages/court_detail_page.dart';
 import '../../../court/presentation/pages/owner_courts_page.dart';
 import '../../../favorite/presentation/bloc/favorite_cubit.dart';
@@ -50,6 +51,10 @@ class _HomeViewState extends State<_HomeView> {
   List<String> get _tabs => [
     'Trang chủ',
     if (_isOwner) 'Sân của tôi',
+    // Nhãn tab rút gọn để 7 tab vẫn vừa 1 dòng trên NavigationBar — trang
+    // đích (OwnerBookingsPage) vẫn hiện tiêu đề đầy đủ "Đặt sân của khách"
+    // đúng mockup.
+    if (_isOwner) 'Booking',
     'Yêu thích',
     'Lịch sử',
     'Thông báo',
@@ -59,6 +64,7 @@ class _HomeViewState extends State<_HomeView> {
   List<IconData> get _tabIcons => [
     Icons.home_rounded,
     if (_isOwner) Icons.stadium_outlined,
+    if (_isOwner) Icons.event_note_outlined,
     Icons.favorite_border_rounded,
     Icons.calendar_month_outlined,
     Icons.notifications_none_rounded,
@@ -112,6 +118,8 @@ class _HomeViewState extends State<_HomeView> {
         return _buildHomeBody(context);
       case 'Sân của tôi':
         return const OwnerCourtsPage();
+      case 'Booking':
+        return OwnerBookingsPage(ownerId: widget.user.uid);
       case 'Yêu thích':
         return const FavoritesPage();
       case 'Lịch sử':

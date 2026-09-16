@@ -86,4 +86,22 @@ class BookingRepositoryImpl implements BookingRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Stream<List<BookingEntity>> watchOwnerBookings(String ownerId) {
+    return remoteDataSource.watchOwnerBookings(ownerId);
+  }
+
+  @override
+  Future<Either<Failure, void>> rainCancelBooking({
+    required String ownerId,
+    required String bookingId,
+  }) async {
+    try {
+      await refundRemoteDataSource.rainCancelBooking(ownerId: ownerId, bookingId: bookingId);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }

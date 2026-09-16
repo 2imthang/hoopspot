@@ -45,4 +45,16 @@ abstract class BookingRepository {
   Future<Either<Failure, List<BookingEntity>>> getOwnerCourtBookings(
     String courtId,
   );
+
+  /// Toàn bộ booking tại MỌI sân của Owner — "Đặt sân của khách" (TASK-032).
+  Stream<List<BookingEntity>> watchOwnerBookings(String ownerId);
+
+  /// Owner đánh dấu hủy do mưa cho 1 booking `confirmed` tại sân
+  /// `isOutdoor` của chính mình — hoàn 100% ngay qua Worker (TASK-026),
+  /// không áp rule ≥6 tiếng. Cũng không tự sửa Firestore ở đây, giống
+  /// [cancelBooking].
+  Future<Either<Failure, void>> rainCancelBooking({
+    required String ownerId,
+    required String bookingId,
+  });
 }

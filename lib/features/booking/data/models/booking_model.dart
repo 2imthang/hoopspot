@@ -8,6 +8,7 @@ class BookingModel extends BookingEntity {
   const BookingModel({
     required super.id,
     required super.userId,
+    required super.userName,
     required super.courtId,
     required super.ownerId,
     required super.date,
@@ -24,6 +25,8 @@ class BookingModel extends BookingEntity {
     return BookingModel(
       id: id,
       userId: data['userId'] as String,
+      // Fallback cho booking cũ tạo trước TASK-032 (chưa có field này).
+      userName: data['userName'] as String? ?? 'Người dùng ẩn danh',
       courtId: data['courtId'] as String,
       ownerId: data['ownerId'] as String,
       date: data['date'] as String,
@@ -40,6 +43,7 @@ class BookingModel extends BookingEntity {
   Map<String, dynamic> toFirestore() {
     return {
       'userId': userId,
+      'userName': userName,
       'courtId': courtId,
       'ownerId': ownerId,
       'date': date,

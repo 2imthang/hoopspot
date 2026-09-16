@@ -8,6 +8,9 @@ import '../../../../core/error/exceptions.dart';
 /// xem Security Rules).
 abstract class BookingRefundRemoteDataSource {
   Future<void> cancelBooking({required String userId, required String bookingId});
+
+  /// TASK-032 — Owner đánh dấu hủy do mưa (`POST /rain-cancel`, TASK-026).
+  Future<void> rainCancelBooking({required String ownerId, required String bookingId});
 }
 
 class BookingRefundRemoteDataSourceImpl implements BookingRefundRemoteDataSource {
@@ -26,12 +29,34 @@ class BookingRefundRemoteDataSourceImpl implements BookingRefundRemoteDataSource
         data: {'userId': userId, 'bookingId': bookingId},
       );
     } on DioException catch (e) {
-      final message =
-          (e.response?.data is Map ? e.response?.data['error'] : null)
-              as String? ??
-          e.message ??
-          'Không thể hủy booking';
-      throw ServerException(message: message, statusCode: e.response?.statusCode);
+      throw ServerException(
+        message: _errorMessageOf(e, fallback: 'Không thể hủy booking'),
+        statusCode: e.response?.statusCode,
+      );
     }
+  }
+
+  @override
+  Future<void> rainCancelBooking({
+    required String ownerId,
+    required String bookingId,
+  }) async {
+    try {
+      await dio.post<Map<String, dynamic>>(
+        PaymentWorkerConstants.rainCancelEndpoint,
+        data: {'ownerId': ownerId, 'bookingId': bookingId},
+      );
+    } on DioException catch (e) {
+      throw ServerException(
+        message: _errorMessageOf(e, fallback: 'Không thể đánh dấu hủy do mưa'),
+        statusCode: e.response?.statusCode,
+      );
+    }
+  }
+
+  String _errorMessageOf(DioException e, {required String fallback}) {
+    return (e.response?.data is Map ? e.response?.data['error'] : null) as String? ??
+        e.message ??
+        fallback;
   }
 }

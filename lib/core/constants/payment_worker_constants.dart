@@ -16,6 +16,10 @@ class PaymentWorkerConstants {
   /// Worker `handlers/refund.ts`).
   static String get refundEndpoint => '$baseUrl/refund';
 
+  /// TASK-032 — Owner đánh dấu hủy do mưa (sân `isOutdoor`, xem Worker
+  /// `handlers/rain-cancel.ts`).
+  static String get rainCancelEndpoint => '$baseUrl/rain-cancel';
+
   /// `vnp_ReturnUrl` — chỉ dùng để WebView nhận biết luồng VNPay đã kết
   /// thúc, không đọc/tin nội dung trang này (xem ghi chú trong Worker).
   static String get returnUrl => '$baseUrl/vnpay-return';

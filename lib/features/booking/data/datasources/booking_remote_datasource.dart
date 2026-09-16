@@ -32,6 +32,10 @@ abstract class BookingRemoteDataSource {
   /// (TASK-031) — filter theo `ownerId` (không phải `courtId` đơn lẻ) để
   /// thỏa điều kiện Security Rule cho phép list-query trên `bookings`.
   Future<List<BookingModel>> getOwnerCourtBookings(String courtId);
+
+  /// Toàn bộ booking tại MỌI sân của Owner đang đăng nhập, mới nhất trước —
+  /// "Đặt sân của khách" (TASK-032).
+  Stream<List<BookingModel>> watchOwnerBookings(String ownerId);
 }
 
 class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
@@ -48,6 +52,9 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
 
   CollectionReference<Map<String, dynamic>> get _slotLocks =>
       firestore.collection(FirestoreCollections.slotLocks);
+
+  CollectionReference<Map<String, dynamic>> get _users =>
+      firestore.collection(FirestoreCollections.users);
 
   String get _currentUserId {
     final uid = firebaseAuth.currentUser?.uid;
@@ -76,6 +83,14 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     final slotLockRef = _slotLocks.doc(_slotLockId(courtId, date, timeSlot));
 
     try {
+      // Snapshot tên hiển thị vào booking (TASK-032) — Owner cần thấy tên
+      // khách ở "Đặt sân của khách" nhưng không có quyền đọc `users/{uid}`
+      // của người khác (Security Rules chỉ cho tự đọc), nên phải lưu kèm ở
+      // đây lúc tạo booking, ngoài transaction (đọc đúng 1 lần, không cần
+      // nhất quán tuyệt đối với transaction chống trùng slot).
+      final userDoc = await _users.doc(userId).get();
+      final userName = userDoc.data()?['displayName'] as String? ?? 'Người dùng ẩn danh';
+
       // Returning `null` (instead of throwing) when the slot is taken —
       // throwing a non-FirebaseException out of the transaction closure
       // trips a bug in cloud_firestore's Android transaction bridge
@@ -107,6 +122,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
         final newBooking = BookingModel(
           id: bookingRef.id,
           userId: userId,
+          userName: userName,
           courtId: courtId,
           ownerId: ownerId,
           date: date,
@@ -216,5 +232,18 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Không thể tải danh sách booking');
     }
+  }
+
+  @override
+  Stream<List<BookingModel>> watchOwnerBookings(String ownerId) {
+    return _bookings
+        .where('ownerId', isEqualTo: ownerId)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => BookingModel.fromFirestore(doc.id, doc.data()))
+              .toList(),
+        );
   }
 }

@@ -8,6 +8,13 @@ enum BookingStatus { pendingPayment, confirmed, cancelled, completed }
 class BookingEntity extends Equatable {
   final String id;
   final String userId;
+
+  /// Snapshot of the renter's `displayName` at booking time (TASK-032) —
+  /// Owner Bookings shows "khách" nhưng Owner không có quyền đọc
+  /// `users/{userId}` của người khác (Security Rules chỉ cho tự đọc), nên
+  /// phải lưu kèm ở đây, giống cách Review (TASK-029) snapshot `userName`.
+  final String userName;
+
   final String courtId;
   final String ownerId;
 
@@ -43,6 +50,7 @@ class BookingEntity extends Equatable {
   const BookingEntity({
     required this.id,
     required this.userId,
+    required this.userName,
     required this.courtId,
     required this.ownerId,
     required this.date,
@@ -59,6 +67,7 @@ class BookingEntity extends Equatable {
   List<Object?> get props => [
     id,
     userId,
+    userName,
     courtId,
     ownerId,
     date,

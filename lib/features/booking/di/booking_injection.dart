@@ -11,10 +11,13 @@ import '../domain/usecases/cancel_booking_usecase.dart';
 import '../domain/usecases/create_booking_usecase.dart';
 import '../domain/usecases/get_booked_slots_usecase.dart';
 import '../domain/usecases/get_owner_court_bookings_usecase.dart';
+import '../domain/usecases/rain_cancel_booking_usecase.dart';
 import '../domain/usecases/watch_bookings_status_usecase.dart';
 import '../domain/usecases/watch_my_bookings_usecase.dart';
+import '../domain/usecases/watch_owner_bookings_usecase.dart';
 import '../presentation/bloc/booking_history_cubit.dart';
 import '../presentation/bloc/booking_slots_cubit.dart';
+import '../presentation/bloc/owner_bookings_cubit.dart';
 
 void initBookingDependencies() {
   sl.registerLazySingleton<BookingRemoteDataSource>(
@@ -33,6 +36,8 @@ void initBookingDependencies() {
   sl.registerLazySingleton(() => WatchMyBookingsUseCase(sl()));
   sl.registerLazySingleton(() => CancelBookingUseCase(sl()));
   sl.registerLazySingleton(() => GetOwnerCourtBookingsUseCase(sl()));
+  sl.registerLazySingleton(() => WatchOwnerBookingsUseCase(sl()));
+  sl.registerLazySingleton(() => RainCancelBookingUseCase(sl()));
 
   sl.registerFactoryParam<BookingSlotsCubit, CourtEntity, void>(
     (court, _) => BookingSlotsCubit(
@@ -49,6 +54,15 @@ void initBookingDependencies() {
       getCourtByIdUseCase: sl<GetCourtByIdUseCase>(),
       cancelBookingUseCase: sl(),
       getMyReviewedBookingIdsUseCase: sl<GetMyReviewedBookingIdsUseCase>(),
+    ),
+  );
+
+  sl.registerFactoryParam<OwnerBookingsCubit, String, void>(
+    (ownerId, _) => OwnerBookingsCubit(
+      ownerId: ownerId,
+      watchOwnerBookingsUseCase: sl(),
+      getCourtByIdUseCase: sl<GetCourtByIdUseCase>(),
+      rainCancelBookingUseCase: sl(),
     ),
   );
 }
