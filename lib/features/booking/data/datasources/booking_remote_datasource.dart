@@ -27,6 +27,11 @@ abstract class BookingRemoteDataSource {
   /// Toàn bộ booking của 1 user, mới nhất trước — dùng cho Booking History
   /// (TASK-027).
   Stream<List<BookingModel>> watchMyBookings(String userId);
+
+  /// Toàn bộ booking tại [courtId] của chính Owner đang đăng nhập
+  /// (TASK-031) — filter theo `ownerId` (không phải `courtId` đơn lẻ) để
+  /// thỏa điều kiện Security Rule cho phép list-query trên `bookings`.
+  Future<List<BookingModel>> getOwnerCourtBookings(String courtId);
 }
 
 class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
@@ -196,5 +201,20 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
               .map((doc) => BookingModel.fromFirestore(doc.id, doc.data()))
               .toList(),
         );
+  }
+
+  @override
+  Future<List<BookingModel>> getOwnerCourtBookings(String courtId) async {
+    try {
+      final snapshot = await _bookings
+          .where('ownerId', isEqualTo: _currentUserId)
+          .where('courtId', isEqualTo: courtId)
+          .get();
+      return snapshot.docs
+          .map((doc) => BookingModel.fromFirestore(doc.id, doc.data()))
+          .toList();
+    } on FirebaseException catch (e) {
+      throw ServerException(message: e.message ?? 'Không thể tải danh sách booking');
+    }
   }
 }

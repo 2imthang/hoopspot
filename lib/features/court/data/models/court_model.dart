@@ -75,15 +75,23 @@ class CourtModel extends CourtEntity {
       'amenities': amenities,
       'isOutdoor': isOutdoor,
       'isHidden': isHidden,
-      'weeklySchedule': {
-        for (final entry in weeklySchedule.entries)
-          entry.key.name: {
-            'isOpen': entry.value.isOpen,
-            'openTime': entry.value.openTime,
-            'closeTime': entry.value.closeTime,
-          },
-      },
+      'weeklySchedule': encodeWeeklySchedule(weeklySchedule),
       'createdAt': Timestamp.fromDate(createdAt),
+    };
+  }
+
+  /// Dùng chung bởi [toFirestore] (tạo/sửa sân đầy đủ) và
+  /// `updateCourtSchedule` (TASK-031, chỉ ghi mỗi field này).
+  static Map<String, dynamic> encodeWeeklySchedule(
+    Map<Weekday, DaySchedule> schedule,
+  ) {
+    return {
+      for (final entry in schedule.entries)
+        entry.key.name: {
+          'isOpen': entry.value.isOpen,
+          'openTime': entry.value.openTime,
+          'closeTime': entry.value.closeTime,
+        },
     };
   }
 }

@@ -10,6 +10,7 @@ import '../domain/repositories/booking_repository.dart';
 import '../domain/usecases/cancel_booking_usecase.dart';
 import '../domain/usecases/create_booking_usecase.dart';
 import '../domain/usecases/get_booked_slots_usecase.dart';
+import '../domain/usecases/get_owner_court_bookings_usecase.dart';
 import '../domain/usecases/watch_bookings_status_usecase.dart';
 import '../domain/usecases/watch_my_bookings_usecase.dart';
 import '../presentation/bloc/booking_history_cubit.dart';
@@ -31,6 +32,7 @@ void initBookingDependencies() {
   sl.registerLazySingleton(() => WatchBookingsStatusUseCase(sl()));
   sl.registerLazySingleton(() => WatchMyBookingsUseCase(sl()));
   sl.registerLazySingleton(() => CancelBookingUseCase(sl()));
+  sl.registerLazySingleton(() => GetOwnerCourtBookingsUseCase(sl()));
 
   sl.registerFactoryParam<BookingSlotsCubit, CourtEntity, void>(
     (court, _) => BookingSlotsCubit(

@@ -38,4 +38,11 @@ abstract class BookingRepository {
     required String userId,
     required String bookingId,
   });
+
+  /// Toàn bộ booking tại 1 sân của chính Owner đang đăng nhập (TASK-031,
+  /// dùng để chặn xóa sân đang có booking `confirmed` trong tương lai —
+  /// functional-spec 4.10).
+  Future<Either<Failure, List<BookingEntity>>> getOwnerCourtBookings(
+    String courtId,
+  );
 }

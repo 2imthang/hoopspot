@@ -36,6 +36,24 @@ class CourtEntity extends Equatable {
     required this.createdAt,
   });
 
+  CourtEntity copyWith({bool? isOutdoor}) {
+    return CourtEntity(
+      id: id,
+      ownerId: ownerId,
+      name: name,
+      address: address,
+      latitude: latitude,
+      longitude: longitude,
+      imageUrls: imageUrls,
+      pricePerSlot: pricePerSlot,
+      amenities: amenities,
+      isOutdoor: isOutdoor ?? this.isOutdoor,
+      isHidden: isHidden,
+      weeklySchedule: weeklySchedule,
+      createdAt: createdAt,
+    );
+  }
+
   @override
   List<Object?> get props => [
     id,

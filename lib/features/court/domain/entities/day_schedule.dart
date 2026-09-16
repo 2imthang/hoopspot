@@ -20,6 +20,14 @@ class DaySchedule extends Equatable {
     closeTime: '22:00',
   );
 
+  DaySchedule copyWith({bool? isOpen, String? openTime, String? closeTime}) {
+    return DaySchedule(
+      isOpen: isOpen ?? this.isOpen,
+      openTime: openTime ?? this.openTime,
+      closeTime: closeTime ?? this.closeTime,
+    );
+  }
+
   @override
   List<Object?> get props => [isOpen, openTime, closeTime];
 }

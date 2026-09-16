@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/constants/firestore_collections.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../domain/entities/court_entity.dart';
+import '../../domain/entities/day_schedule.dart';
 import '../models/court_model.dart';
 
 abstract class CourtRemoteDataSource {
@@ -29,6 +31,11 @@ abstract class CourtRemoteDataSource {
   });
 
   Future<void> deleteCourt(String courtId);
+
+  Future<CourtModel> updateCourtSchedule({
+    required String courtId,
+    required Map<Weekday, DaySchedule> weeklySchedule,
+  });
 
   Future<List<CourtModel>> getOwnerCourts();
 
@@ -123,6 +130,21 @@ class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
       await _courts.doc(courtId).delete();
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Không thể xóa sân');
+    }
+  }
+
+  @override
+  Future<CourtModel> updateCourtSchedule({
+    required String courtId,
+    required Map<Weekday, DaySchedule> weeklySchedule,
+  }) async {
+    try {
+      await _courts.doc(courtId).update({
+        'weeklySchedule': CourtModel.encodeWeeklySchedule(weeklySchedule),
+      });
+      return getCourtById(courtId);
+    } on FirebaseException catch (e) {
+      throw ServerException(message: e.message ?? 'Không thể cập nhật giờ hoạt động');
     }
   }
 

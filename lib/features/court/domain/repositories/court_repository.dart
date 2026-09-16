@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failures.dart';
 import '../entities/court_entity.dart';
+import '../entities/day_schedule.dart';
 
 abstract class CourtRepository {
   Future<Either<Failure, CourtEntity>> createCourt({
@@ -30,6 +31,13 @@ abstract class CourtRepository {
   });
 
   Future<Either<Failure, void>> deleteCourt(String courtId);
+
+  /// TASK-031 — cấu hình giờ hoạt động riêng, tách khỏi [updateCourt] vì
+  /// màn Schedule Config chỉ sửa đúng field này.
+  Future<Either<Failure, CourtEntity>> updateCourtSchedule({
+    required String courtId,
+    required Map<Weekday, DaySchedule> weeklySchedule,
+  });
 
   /// Courts owned by the currently signed-in Owner.
   Future<Either<Failure, List<CourtEntity>>> getOwnerCourts();

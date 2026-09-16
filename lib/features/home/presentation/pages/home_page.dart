@@ -7,6 +7,7 @@ import '../../../auth/domain/usecases/sign_out_usecase.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 import '../../../booking/presentation/pages/booking_history_page.dart';
 import '../../../court/presentation/pages/court_detail_page.dart';
+import '../../../court/presentation/pages/owner_courts_page.dart';
 import '../../../favorite/presentation/bloc/favorite_cubit.dart';
 import '../../../favorite/presentation/pages/favorites_page.dart';
 import '../../../notification/presentation/pages/notifications_page.dart';
@@ -41,9 +42,23 @@ class _HomeView extends StatefulWidget {
 class _HomeViewState extends State<_HomeView> {
   int _selectedIndex = 0;
 
-  static const _tabs = ['Trang chủ', 'Yêu thích', 'Lịch sử', 'Thông báo', 'Cá nhân'];
-  static const _tabIcons = [
+  /// Owner thấy thêm tab "Sân của tôi" (TASK-031) — vẫn dùng chung
+  /// `HomePage`, không tách app/dashboard riêng, đúng tinh thần CLAUDE.md
+  /// ("Owner: tất cả quyền User + CRUD sân...").
+  bool get _isOwner => widget.user.role == UserRole.owner;
+
+  List<String> get _tabs => [
+    'Trang chủ',
+    if (_isOwner) 'Sân của tôi',
+    'Yêu thích',
+    'Lịch sử',
+    'Thông báo',
+    'Cá nhân',
+  ];
+
+  List<IconData> get _tabIcons => [
     Icons.home_rounded,
+    if (_isOwner) Icons.stadium_outlined,
     Icons.favorite_border_rounded,
     Icons.calendar_month_outlined,
     Icons.notifications_none_rounded,
@@ -91,22 +106,24 @@ class _HomeViewState extends State<_HomeView> {
   }
 
   Widget _buildBody(BuildContext context) {
-    switch (_selectedIndex) {
-      case 0:
+    final label = _tabs[_selectedIndex];
+    switch (label) {
+      case 'Trang chủ':
         return _buildHomeBody(context);
-      case 1:
+      case 'Sân của tôi':
+        return const OwnerCourtsPage();
+      case 'Yêu thích':
         return const FavoritesPage();
-      case 2:
+      case 'Lịch sử':
         return BookingHistoryPage(userId: widget.user.uid);
-      case 3:
+      case 'Thông báo':
         return const NotificationsPage();
       default:
-        return _buildComingSoonTab(context);
+        return _buildComingSoonTab(context, label);
     }
   }
 
-  Widget _buildComingSoonTab(BuildContext context) {
-    final label = _tabs[_selectedIndex];
+  Widget _buildComingSoonTab(BuildContext context, String label) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -115,7 +132,7 @@ class _HomeViewState extends State<_HomeView> {
             '$label sắp ra mắt',
             style: Theme.of(context).textTheme.titleMedium,
           ),
-          if (_selectedIndex == 4) ...[
+          if (label == 'Cá nhân') ...[
             const SizedBox(height: 16),
             TextButton(
               onPressed: () => _signOut(context),

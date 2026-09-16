@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/court_entity.dart';
+import '../../domain/entities/day_schedule.dart';
 import '../../domain/repositories/court_repository.dart';
 import '../datasources/court_remote_datasource.dart';
 
@@ -73,6 +74,22 @@ class CourtRepositoryImpl implements CourtRepository {
     try {
       await remoteDataSource.deleteCourt(courtId);
       return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, CourtEntity>> updateCourtSchedule({
+    required String courtId,
+    required Map<Weekday, DaySchedule> weeklySchedule,
+  }) async {
+    try {
+      final court = await remoteDataSource.updateCourtSchedule(
+        courtId: courtId,
+        weeklySchedule: weeklySchedule,
+      );
+      return Right(court);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }

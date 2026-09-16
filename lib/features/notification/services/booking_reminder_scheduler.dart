@@ -1,5 +1,6 @@
 import 'dart:async';
 import '../../../core/services/notification_service.dart';
+import '../../../core/utils/vn_time.dart';
 import '../../booking/domain/entities/booking_entity.dart';
 import '../../booking/domain/usecases/watch_my_bookings_usecase.dart';
 import '../../court/domain/usecases/get_court_by_id_usecase.dart';
@@ -48,7 +49,7 @@ class BookingReminderScheduler {
       );
       if (booking.status == BookingStatus.confirmed) {
         if (hasScheduled) continue;
-        final playStart = _parsePlayStart(booking.date, booking.timeSlot);
+        final playStart = parseSlotStartUtc(booking.date, booking.timeSlot);
         if (!playStart.isAfter(DateTime.now().toUtc())) continue;
         final courtName = await _resolveCourtName(booking.courtId);
         await notificationService.scheduleBookingReminders(
@@ -72,17 +73,4 @@ class BookingReminderScheduler {
     });
   }
 
-  /// `date`/`timeSlot` là giờ VN (GMT+7) dạng chuỗi thuần — quy đổi đúng
-  /// thời điểm UTC thật, giống hệt cách làm ở `BookingHistoryCubit` và
-  /// Worker's `refundExecution.ts`.
-  DateTime _parsePlayStart(String date, String timeSlot) {
-    final parts = date.split('-').map(int.parse).toList();
-    final startHour = int.parse(timeSlot.split('-')[0].split(':')[0]);
-    return DateTime.utc(
-      parts[0],
-      parts[1],
-      parts[2],
-      startHour,
-    ).subtract(const Duration(hours: 7));
-  }
 }

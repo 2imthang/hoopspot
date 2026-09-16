@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/utils/vn_time.dart';
 import '../../../court/domain/usecases/get_court_by_id_usecase.dart';
 import '../../../review/domain/usecases/get_my_reviewed_booking_ids_usecase.dart';
 import '../../domain/entities/booking_entity.dart';
@@ -137,13 +138,8 @@ class BookingHistoryCubit extends Cubit<BookingHistoryState> {
   }
 
   bool _hasSlotEnded(BookingEntity booking) {
-    final parts = booking.date.split('-').map(int.parse).toList();
-    final endHour = int.parse(booking.timeSlot.split('-')[1].split(':')[0]);
-    // `date`/`timeSlot` là giờ VN (GMT+7) — quy đổi đúng thời điểm UTC thật.
-    final endUtcMs =
-        DateTime.utc(parts[0], parts[1], parts[2], endHour).millisecondsSinceEpoch -
-        7 * 60 * 60 * 1000;
-    return DateTime.now().toUtc().millisecondsSinceEpoch >= endUtcMs;
+    final end = parseSlotEndUtc(booking.date, booking.timeSlot);
+    return !DateTime.now().toUtc().isBefore(end);
   }
 
   @override
