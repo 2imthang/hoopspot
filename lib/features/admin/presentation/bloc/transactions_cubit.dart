@@ -4,6 +4,7 @@ import '../../../../core/usecase/usecase.dart';
 import '../../../booking/domain/entities/booking_entity.dart';
 import '../../../court/domain/entities/court_entity.dart';
 import '../../../court/domain/usecases/get_court_by_id_usecase.dart';
+import '../../domain/derive_transaction_status.dart';
 import '../../domain/usecases/get_all_transactions_usecase.dart';
 
 part 'transactions_state.dart';
@@ -68,7 +69,7 @@ class TransactionsCubit extends Cubit<TransactionsState> {
           (booking) => TransactionItem(
             booking: booking,
             courtName: _courts[booking.courtId]?.name ?? 'Sân bóng rổ',
-            status: _deriveStatus(booking),
+            status: deriveTransactionStatus(booking),
           ),
         )
         .where(_matchesFilter)
@@ -91,26 +92,5 @@ class TransactionsCubit extends Cubit<TransactionsState> {
       case TransactionFilter.refunded:
         return item.status == TransactionStatus.refunded;
     }
-  }
-
-  /// `payments` không track hoàn tiền (nằm trên `bookings`) nên suy trạng
-  /// thái "giao dịch" từ `status`/`refundStatus` của booking:
-  /// - `confirmed`/`completed` → thành công.
-  /// - `cancelled` + `refundStatus == 'refunded'` → đã hoàn tiền.
-  /// - `cancelled` + không có `refundStatus`/`cancelReason` nào cả → đây là
-  ///   nhánh IPN báo thanh toán thất bại (`vnpay-ipn.ts` chỉ ghi
-  ///   `{status: 'cancelled'}` trơn khi `isSuccess == false`, không kèm 2
-  ///   field kia) → thất bại thật sự, tiền chưa từng vào.
-  /// - `cancelled` với `refundStatus` khác (`not_eligible`/`refund_pending`)
-  ///   → tiền ĐÃ được thu thành công lúc thanh toán, chỉ là hủy sau đó
-  ///   không được hoàn (hoặc hoàn lỗi) — vẫn tính là giao dịch thành công,
-  ///   đúng 3 trạng thái mockup có (không thêm trạng thái thứ 4).
-  TransactionStatus _deriveStatus(BookingEntity booking) {
-    if (booking.status != BookingStatus.cancelled) return TransactionStatus.success;
-    if (booking.refundStatus == 'refunded') return TransactionStatus.refunded;
-    if (booking.refundStatus == null && booking.cancelReason == null) {
-      return TransactionStatus.failed;
-    }
-    return TransactionStatus.success;
   }
 }
