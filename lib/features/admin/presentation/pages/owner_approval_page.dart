@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/error_state.dart';
 import '../../../../core/widgets/skeleton.dart';
@@ -145,13 +146,13 @@ class _OwnerCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.15),
+                  color: AppColors.warning.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   'Chờ duyệt',
                   style: theme.textTheme.labelSmall?.copyWith(
-                    color: Colors.amber.shade800,
+                    color: AppColors.warning.shade800,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -182,7 +183,7 @@ class _OwnerCard extends StatelessWidget {
               Expanded(
                 child: FilledButton(
                   onPressed: busy ? null : onApprove,
-                  style: FilledButton.styleFrom(backgroundColor: Colors.green),
+                  style: FilledButton.styleFrom(backgroundColor: AppColors.success),
                   child: busy
                       ? const SizedBox(
                           width: 18,

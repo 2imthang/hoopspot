@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/error_state.dart';
 import '../../../../core/widgets/skeleton.dart';
+import '../../../booking/domain/entities/booking_entity.dart';
 import '../bloc/transactions_cubit.dart';
 
 /// TASK-035 — "Giao dịch" (chỉ Admin), khớp mockup
@@ -201,7 +203,7 @@ class _TransactionCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             '${booking.userName} · ${item.courtName} · ${_formatDate(booking.date)}'
-            '${booking.cancelReason == 'rain' ? ' · Hủy do mưa' : ''}',
+            '${booking.cancelReason == CancelReasonValue.rain ? ' · Hủy do mưa' : ''}',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -213,7 +215,7 @@ class _TransactionCard extends StatelessWidget {
                 : formatVnd(booking.pricePerSlot),
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: refunded ? Colors.blue : null,
+              color: refunded ? AppColors.info : null,
             ),
           ),
         ],
@@ -231,8 +233,8 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final (label, color) = switch (status) {
-      TransactionStatus.success => ('Thành công', Colors.green),
-      TransactionStatus.refunded => ('Đã hoàn tiền', Colors.blue),
+      TransactionStatus.success => ('Thành công', AppColors.success),
+      TransactionStatus.refunded => ('Đã hoàn tiền', AppColors.info),
       TransactionStatus.failed => ('Thất bại', theme.colorScheme.error),
     };
 

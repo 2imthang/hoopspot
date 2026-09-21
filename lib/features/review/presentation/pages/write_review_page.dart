@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../domain/comment_filter.dart';
 import '../../domain/usecases/create_review_usecase.dart';
 
@@ -117,7 +118,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                       }),
                       icon: Icon(
                         star <= _rating ? Icons.star : Icons.star_border,
-                        color: Colors.orange,
+                        color: AppColors.ratingStar,
                       ),
                     ),
                 ],

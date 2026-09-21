@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../../../../core/constants/payment_worker_constants.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../bloc/payment_cubit.dart';
 
 /// TASK-023 — WebView thanh toán VNPay + theo dõi trạng thái booking qua
@@ -68,7 +69,7 @@ class _PaymentView extends StatelessWidget {
             if (state is PaymentResultSuccess) {
               return _MessageView(
                 icon: Icons.check_circle,
-                color: Colors.green,
+                color: AppColors.success,
                 title: 'Thanh toán thành công',
                 message: 'Sân của bạn đã được xác nhận đặt.',
                 showBackButton: true,
@@ -86,7 +87,7 @@ class _PaymentView extends StatelessWidget {
             // PaymentResultTimeout
             return _MessageView(
               icon: Icons.hourglass_top,
-              color: Colors.orange,
+              color: AppColors.warning.shade800,
               title: 'Chưa có kết quả',
               message:
                   'Chưa nhận được xác nhận từ VNPay. Kiểm tra lại trạng thái đặt sân trong ít phút nữa.',

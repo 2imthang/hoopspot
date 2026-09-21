@@ -7,6 +7,7 @@ import '../../../../core/widgets/error_state.dart';
 import '../../../../core/widgets/skeleton.dart';
 import '../../domain/entities/booking_entity.dart';
 import '../bloc/owner_bookings_cubit.dart';
+import '../widgets/booking_status_badge.dart';
 import 'rain_cancel_confirmation_page.dart';
 
 /// TASK-032 — tab "Đặt sân của khách" (chỉ Owner), khớp mockup
@@ -194,13 +195,13 @@ class _BookingCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              _StatusBadge(booking: booking),
+              BookingStatusBadge(booking: booking),
             ],
           ),
           const SizedBox(height: 6),
           Text(
             '${_formatDate(booking.date)} · ${booking.timeSlot} · ${formatVnd(booking.pricePerSlot)}'
-            '${booking.cancelReason == 'rain' ? ' · Hủy do mưa' : ''}',
+            '${booking.cancelReason == CancelReasonValue.rain ? ' · Hủy do mưa' : ''}',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -223,37 +224,6 @@ class _BookingCard extends StatelessWidget {
             ),
           ],
         ],
-      ),
-    );
-  }
-}
-
-class _StatusBadge extends StatelessWidget {
-  final BookingEntity booking;
-
-  const _StatusBadge({required this.booking});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final (label, color) = switch (booking.status) {
-      BookingStatus.pendingPayment => ('Chờ xác nhận', Colors.amber),
-      BookingStatus.confirmed => ('Đã xác nhận', Colors.green),
-      BookingStatus.completed => ('Hoàn thành', theme.colorScheme.primary),
-      BookingStatus.cancelled => booking.refundStatus == 'refunded'
-          ? ('Đã hoàn tiền', Colors.blue)
-          : ('Đã hủy', theme.colorScheme.error),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelSmall?.copyWith(color: color, fontWeight: FontWeight.bold),
       ),
     );
   }

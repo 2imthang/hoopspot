@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/google_auth_result.dart';
 import '../../domain/entities/user_entity.dart';
 import '../bloc/complete_profile_cubit.dart';
@@ -128,7 +129,7 @@ class _CompleteGoogleProfileViewState
             'Tài khoản cần được Admin duyệt trước khi sử dụng',
             style: Theme.of(
               context,
-            ).textTheme.bodySmall?.copyWith(color: Colors.orange),
+            ).textTheme.bodySmall?.copyWith(color: AppColors.warning.shade800),
           ),
         ],
         const SizedBox(height: 24),

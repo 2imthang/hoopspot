@@ -5,6 +5,27 @@ import 'package:equatable/equatable.dart';
 /// before auto-expiring back to an open slot if unpaid.
 enum BookingStatus { pendingPayment, confirmed, cancelled, completed }
 
+/// TASK-039 — [BookingEntity.refundStatus] stays a plain `String?` (not a
+/// Dart enum) vì Worker (TypeScript, `refundExecution.ts`) là nơi ghi giá
+/// trị này thẳng vào Firestore, không đi qua lớp parse enum nào ở Flutter.
+/// Named constants ở đây chỉ để so sánh (`== RefundStatusValue.refunded`)
+/// không bị gõ nhầm chuỗi rải rác nhiều nơi.
+class RefundStatusValue {
+  const RefundStatusValue._();
+
+  static const String refunded = 'refunded';
+  static const String notEligible = 'not_eligible';
+  static const String refundPending = 'refund_pending';
+}
+
+/// TASK-039 — cùng lý do với [RefundStatusValue].
+class CancelReasonValue {
+  const CancelReasonValue._();
+
+  static const String userCancel = 'user_cancel';
+  static const String rain = 'rain';
+}
+
 class BookingEntity extends Equatable {
   final String id;
   final String userId;
@@ -39,11 +60,11 @@ class BookingEntity extends Equatable {
   final DateTime createdAt;
 
   /// Set by the payment Worker (TASK-025/026) once a cancel+refund was
-  /// attempted: `'refunded'` or `'refund_pending'` (VNPay call failed,
-  /// functional-spec says don't leave it ambiguous). Null = never attempted.
+  /// attempted: see [RefundStatusValue] (VNPay call failed, functional-spec
+  /// says don't leave it ambiguous). Null = never attempted.
   final String? refundStatus;
 
-  /// `'user_cancel'` or `'rain'` — only set alongside [refundStatus], lets
+  /// See [CancelReasonValue] — only set alongside [refundStatus], lets
   /// Booking History (TASK-027) show *why* a booking was cancelled.
   final String? cancelReason;
 

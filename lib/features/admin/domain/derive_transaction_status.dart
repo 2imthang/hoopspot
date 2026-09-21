@@ -21,7 +21,7 @@ import '../presentation/bloc/transactions_cubit.dart';
 ///   đúng 3 trạng thái mockup có (không thêm trạng thái thứ 4).
 TransactionStatus deriveTransactionStatus(BookingEntity booking) {
   if (booking.status != BookingStatus.cancelled) return TransactionStatus.success;
-  if (booking.refundStatus == 'refunded') return TransactionStatus.refunded;
+  if (booking.refundStatus == RefundStatusValue.refunded) return TransactionStatus.refunded;
   if (booking.refundStatus == null && booking.cancelReason == null) {
     return TransactionStatus.failed;
   }

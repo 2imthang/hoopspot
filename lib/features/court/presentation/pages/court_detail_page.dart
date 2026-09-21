@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart' as latlong;
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/constants/map_constants.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/error_state.dart';
 import '../../../../core/widgets/skeleton.dart';
@@ -64,7 +66,7 @@ class _CourtDetailBody extends StatelessWidget {
 
   Future<void> _openDirections(BuildContext context) async {
     final uri = Uri.parse(
-      'https://www.google.com/maps/dir/?api=1&destination=${court.latitude},${court.longitude}',
+      MapConstants.directionsUrl(latitude: court.latitude, longitude: court.longitude),
     );
     final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!launched && context.mounted) {
@@ -107,7 +109,7 @@ class _CourtDetailBody extends StatelessWidget {
                           ),
                         ),
                         if (state.reviews.isNotEmpty) ...[
-                          const Icon(Icons.star, size: 18, color: Colors.orange),
+                          const Icon(Icons.star, size: 18, color: AppColors.ratingStar),
                           const SizedBox(width: 2),
                           Text(
                             '${state.averageRating.toStringAsFixed(1)} (${state.reviews.length})',
@@ -370,7 +372,7 @@ class _ReviewCard extends StatelessWidget {
                         (i) => Icon(
                           i < review.rating ? Icons.star : Icons.star_border,
                           size: 14,
-                          color: Colors.orange,
+                          color: AppColors.ratingStar,
                         ),
                       ),
                     ),
@@ -459,7 +461,7 @@ class _MapPreview extends StatelessWidget {
             options: MapOptions(initialCenter: center, initialZoom: 15),
             children: [
               TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                urlTemplate: MapConstants.osmTileUrlTemplate,
                 userAgentPackageName: 'com.example.hoop_spot',
               ),
               MarkerLayer(

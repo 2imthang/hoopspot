@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../domain/entities/booking_entity.dart';
 import '../../domain/usecases/rain_cancel_booking_usecase.dart';
@@ -115,13 +116,13 @@ class _RainCancelConfirmationPageState extends State<RainCancelConfirmationPage>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.15),
+                  color: AppColors.warning.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.warning_amber_rounded, color: Colors.amber, size: 20),
+                    Icon(Icons.warning_amber_rounded, color: AppColors.warning.shade800, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: RichText(

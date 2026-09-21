@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/currency_formatter.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/error_state.dart';
@@ -214,14 +215,14 @@ class _OwnerCourtCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (_isOpenNow ? Colors.green : theme.colorScheme.error)
+                  color: (_isOpenNow ? AppColors.success : theme.colorScheme.error)
                       .withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   _isOpenNow ? 'Đang mở' : 'Tạm đóng',
                   style: theme.textTheme.labelSmall?.copyWith(
-                    color: _isOpenNow ? Colors.green : theme.colorScheme.error,
+                    color: _isOpenNow ? AppColors.success : theme.colorScheme.error,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

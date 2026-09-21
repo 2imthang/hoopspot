@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/user_entity.dart';
 import '../bloc/register_cubit.dart';
 import '../widgets/auth_text_field.dart';
@@ -141,7 +142,7 @@ class _RegisterViewState extends State<_RegisterView> {
             'Tài khoản cần được Admin duyệt trước khi sử dụng',
             style: Theme.of(
               context,
-            ).textTheme.bodySmall?.copyWith(color: Colors.orange),
+            ).textTheme.bodySmall?.copyWith(color: AppColors.warning.shade800),
           ),
         ],
         const SizedBox(height: 24),

@@ -8,6 +8,7 @@ import '../../../../core/widgets/skeleton.dart';
 import '../../../review/presentation/pages/write_review_page.dart';
 import '../../domain/entities/booking_entity.dart';
 import '../bloc/booking_history_cubit.dart';
+import '../widgets/booking_status_badge.dart';
 
 /// TASK-027 — nhúng vào tab "Lịch sử" của [HomePage] (không phải màn hình
 /// riêng, giống cách tab "Trang chủ" nhúng thẳng nội dung Home).
@@ -197,7 +198,7 @@ class _BookingCard extends StatelessWidget {
                   ),
                 ),
               ),
-              _StatusBadge(booking: booking),
+              BookingStatusBadge(booking: booking),
             ],
           ),
           const SizedBox(height: 6),
@@ -241,39 +242,5 @@ class _BookingCard extends StatelessWidget {
   String _formatDate(String yyyyMMdd) {
     final parts = yyyyMMdd.split('-');
     return '${parts[2]}/${parts[1]}/${parts[0]}';
-  }
-}
-
-class _StatusBadge extends StatelessWidget {
-  final BookingEntity booking;
-
-  const _StatusBadge({required this.booking});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final (label, color) = switch (booking.status) {
-      BookingStatus.pendingPayment => ('Chờ xác nhận', Colors.amber),
-      BookingStatus.confirmed => ('Đã xác nhận', Colors.green),
-      BookingStatus.completed => ('Hoàn thành', theme.colorScheme.primary),
-      BookingStatus.cancelled => booking.refundStatus == 'refunded'
-          ? ('Đã hoàn tiền', Colors.blue)
-          : ('Đã hủy', theme.colorScheme.error),
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: color,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/user_entity.dart';
 import '../bloc/account_status_cubit.dart';
 import 'login_page.dart';
@@ -102,11 +103,11 @@ class _AccountStatusView extends StatelessWidget {
         return [
           CircleAvatar(
             radius: 40,
-            backgroundColor: Colors.amber.shade100,
-            child: const Icon(
+            backgroundColor: AppColors.warning.shade100,
+            child: Icon(
               Icons.access_time_rounded,
               size: 36,
-              color: Colors.orange,
+              color: AppColors.warning.shade800,
             ),
           ),
           const SizedBox(height: 24),
@@ -129,11 +130,11 @@ class _AccountStatusView extends StatelessWidget {
         return [
           CircleAvatar(
             radius: 40,
-            backgroundColor: Colors.red.shade100,
-            child: const Icon(
+            backgroundColor: Theme.of(context).colorScheme.errorContainer,
+            child: Icon(
               Icons.close_rounded,
               size: 36,
-              color: Colors.red,
+              color: Theme.of(context).colorScheme.error,
             ),
           ),
           const SizedBox(height: 24),
@@ -158,7 +159,7 @@ class _AccountStatusView extends StatelessWidget {
                 Text(
                   'Lý do từ chối',
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Colors.red,
+                    color: Theme.of(context).colorScheme.error,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -176,11 +177,11 @@ class _AccountStatusView extends StatelessWidget {
         return [
           CircleAvatar(
             radius: 40,
-            backgroundColor: Colors.red.shade100,
-            child: const Icon(
+            backgroundColor: Theme.of(context).colorScheme.errorContainer,
+            child: Icon(
               Icons.lock_outline_rounded,
               size: 36,
-              color: Colors.red,
+              color: Theme.of(context).colorScheme.error,
             ),
           ),
           const SizedBox(height: 24),
