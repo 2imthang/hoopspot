@@ -51,4 +51,14 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> sendPasswordResetEmail({
     required String email,
   });
+
+  /// Admin (TASK-033) — mọi tài khoản Owner đang chờ duyệt, realtime.
+  Stream<List<UserEntity>> watchPendingOwners();
+
+  Future<Either<Failure, void>> approveOwner(String uid);
+
+  Future<Either<Failure, void>> rejectOwner({
+    required String uid,
+    required String reason,
+  });
 }

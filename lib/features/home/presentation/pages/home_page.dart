@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/usecase/usecase.dart';
+import '../../../admin/presentation/pages/owner_approval_page.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../auth/domain/usecases/sign_out_usecase.dart';
 import '../../../auth/presentation/pages/login_page.dart';
@@ -48,28 +49,47 @@ class _HomeViewState extends State<_HomeView> {
   /// ("Owner: tất cả quyền User + CRUD sân...").
   bool get _isOwner => widget.user.role == UserRole.owner;
 
-  List<String> get _tabs => [
-    'Trang chủ',
-    if (_isOwner) 'Sân của tôi',
-    // Nhãn tab rút gọn để 7 tab vẫn vừa 1 dòng trên NavigationBar — trang
-    // đích (OwnerBookingsPage) vẫn hiện tiêu đề đầy đủ "Đặt sân của khách"
-    // đúng mockup.
-    if (_isOwner) 'Booking',
-    'Yêu thích',
-    'Lịch sử',
-    'Thông báo',
-    'Cá nhân',
-  ];
+  /// Admin KHÔNG "giữ tất cả quyền User" như Owner — spec liệt kê hẳn một
+  /// bộ tính năng riêng (duyệt Owner, khóa/mở, xem giao dịch) và Admin
+  /// không bao giờ đặt sân. Vì vậy thanh tab của Admin thay hẳn bằng tab
+  /// admin-only, không cộng dồn vào tab User như cách làm với Owner (đã hỏi
+  /// người dùng ở TASK-033, chọn phương án này để tránh tràn tab như từng
+  /// gặp ở TASK-032 và vì không hợp lý khi Admin thấy Trang chủ/Yêu
+  /// thích/Lịch sử).
+  bool get _isAdmin => widget.user.role == UserRole.admin;
 
-  List<IconData> get _tabIcons => [
-    Icons.home_rounded,
-    if (_isOwner) Icons.stadium_outlined,
-    if (_isOwner) Icons.event_note_outlined,
-    Icons.favorite_border_rounded,
-    Icons.calendar_month_outlined,
-    Icons.notifications_none_rounded,
-    Icons.person_outline_rounded,
-  ];
+  List<String> get _tabs {
+    if (_isAdmin) {
+      return ['Duyệt Chủ sân', 'Cá nhân'];
+    }
+    return [
+      'Trang chủ',
+      if (_isOwner) 'Sân của tôi',
+      // Nhãn tab rút gọn để 7 tab vẫn vừa 1 dòng trên NavigationBar — trang
+      // đích (OwnerBookingsPage) vẫn hiện tiêu đề đầy đủ "Đặt sân của
+      // khách" đúng mockup.
+      if (_isOwner) 'Booking',
+      'Yêu thích',
+      'Lịch sử',
+      'Thông báo',
+      'Cá nhân',
+    ];
+  }
+
+  List<IconData> get _tabIcons {
+    if (_isAdmin) {
+      return [Icons.fact_check_outlined, Icons.person_outline_rounded];
+    }
+    return [
+      Icons.home_rounded,
+      if (_isOwner) Icons.stadium_outlined,
+      if (_isOwner) Icons.event_note_outlined,
+      Icons.favorite_border_rounded,
+      Icons.calendar_month_outlined,
+      Icons.notifications_none_rounded,
+      Icons.person_outline_rounded,
+    ];
+  }
 
   void _openSearch(BuildContext context) {
     Navigator.of(context).push(
@@ -120,6 +140,8 @@ class _HomeViewState extends State<_HomeView> {
         return const OwnerCourtsPage();
       case 'Booking':
         return OwnerBookingsPage(ownerId: widget.user.uid);
+      case 'Duyệt Chủ sân':
+        return const OwnerApprovalPage();
       case 'Yêu thích':
         return const FavoritesPage();
       case 'Lịch sử':

@@ -1,11 +1,37 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // A user can only read/create/update their own document (doc ID == their
-    // Auth uid). No one can read someone else's profile or edit role/status
-    // on their own — that's enforced further once Owner/Admin flows exist.
+    // TASK-033: Admin's own `users/{uid}` doc has role == 'admin' — used to
+    // gate every Admin-only rule below. Firestore caches repeated get()
+    // calls to the same path within one rule evaluation, so this is cheap
+    // even for a `list` query that checks it once per matched doc.
+    function isAdmin() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // A user can read their own document; Admin can read anyone's (needed
+    // to list pending Owners). `create` is always the caller writing their
+    // own first doc at registration. `update`: Admin can change anyone
+    // (approve/reject Owner, later lock/unlock accounts); a normal user can
+    // only perform the one self-service "nộp lại hồ sơ" transition
+    // (rejected -> pending, clearing rejectReason) and nothing else — in
+    // particular this blocks a user from ever self-granting role or status
+    // via a raw client write, which the previous unrestricted self-update
+    // rule allowed and which would have made TASK-033's approval gate
+    // meaningless.
     match /users/{userId} {
-      allow read, create, update: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null &&
+        (request.auth.uid == userId || isAdmin());
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && (
+        isAdmin() ||
+        (request.auth.uid == userId
+          && resource.data.status == 'rejected'
+          && request.resource.data.status == 'pending'
+          && request.resource.data.rejectReason == null
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'rejectReason']))
+      );
       allow delete: if false;
     }
 

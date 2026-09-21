@@ -42,6 +42,12 @@ abstract class AuthRemoteDataSource {
   Future<UserModel> resubmitOwnerApplication();
 
   Future<void> sendPasswordResetEmail(String email);
+
+  Stream<List<UserModel>> watchPendingOwners();
+
+  Future<void> approveOwner(String uid);
+
+  Future<void> rejectOwner({required String uid, required String reason});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -216,6 +222,36 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'rejectReason': null,
     });
     return _fetchUserDoc(firebaseUser.uid);
+  }
+
+  @override
+  Stream<List<UserModel>> watchPendingOwners() {
+    return firestore
+        .collection(FirestoreCollections.users)
+        .where('role', isEqualTo: UserRole.owner.name)
+        .where('status', isEqualTo: UserStatus.pending.name)
+        .snapshots()
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => UserModel.fromFirestore(doc.id, doc.data()))
+              .toList(),
+        );
+  }
+
+  @override
+  Future<void> approveOwner(String uid) async {
+    await firestore.collection(FirestoreCollections.users).doc(uid).update({
+      'status': UserStatus.active.name,
+      'rejectReason': null,
+    });
+  }
+
+  @override
+  Future<void> rejectOwner({required String uid, required String reason}) async {
+    await firestore.collection(FirestoreCollections.users).doc(uid).update({
+      'status': UserStatus.rejected.name,
+      'rejectReason': reason,
+    });
   }
 
   @override

@@ -144,4 +144,32 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Stream<List<UserEntity>> watchPendingOwners() {
+    return remoteDataSource.watchPendingOwners();
+  }
+
+  @override
+  Future<Either<Failure, void>> approveOwner(String uid) async {
+    try {
+      await remoteDataSource.approveOwner(uid);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> rejectOwner({
+    required String uid,
+    required String reason,
+  }) async {
+    try {
+      await remoteDataSource.rejectOwner(uid: uid, reason: reason);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }
