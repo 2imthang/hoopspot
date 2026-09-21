@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../../../admin/presentation/pages/owner_approval_page.dart';
+import '../../../admin/presentation/pages/transactions_page.dart';
 import '../../../admin/presentation/pages/user_court_management_page.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../auth/domain/usecases/sign_out_usecase.dart';
@@ -61,7 +62,7 @@ class _HomeViewState extends State<_HomeView> {
 
   List<String> get _tabs {
     if (_isAdmin) {
-      return ['Duyệt Chủ sân', 'Quản lý', 'Cá nhân'];
+      return ['Duyệt Chủ sân', 'Quản lý', 'Giao dịch', 'Cá nhân'];
     }
     return [
       'Trang chủ',
@@ -82,6 +83,7 @@ class _HomeViewState extends State<_HomeView> {
       return [
         Icons.fact_check_outlined,
         Icons.manage_accounts_outlined,
+        Icons.receipt_long_outlined,
         Icons.person_outline_rounded,
       ];
     }
@@ -149,6 +151,8 @@ class _HomeViewState extends State<_HomeView> {
         return const OwnerApprovalPage();
       case 'Quản lý':
         return const UserCourtManagementPage();
+      case 'Giao dịch':
+        return const TransactionsPage();
       case 'Yêu thích':
         return const FavoritesPage();
       case 'Lịch sử':

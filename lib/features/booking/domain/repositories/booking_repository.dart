@@ -57,4 +57,8 @@ abstract class BookingRepository {
     required String ownerId,
     required String bookingId,
   });
+
+  /// Admin (TASK-035) — mọi booking đã rời `pendingPayment`, tức đã có kết
+  /// quả giao dịch (thành công/hoàn tiền/thất bại), mới nhất trước.
+  Future<Either<Failure, List<BookingEntity>>> getAllTransactions();
 }

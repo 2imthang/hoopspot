@@ -36,6 +36,10 @@ abstract class BookingRemoteDataSource {
   /// Toàn bộ booking tại MỌI sân của Owner đang đăng nhập, mới nhất trước —
   /// "Đặt sân của khách" (TASK-032).
   Stream<List<BookingModel>> watchOwnerBookings(String ownerId);
+
+  /// Admin (TASK-035) — mọi booking đã rời `pendingPayment`, mới nhất
+  /// trước.
+  Future<List<BookingModel>> getAllTransactions();
 }
 
 class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
@@ -245,5 +249,21 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
               .map((doc) => BookingModel.fromFirestore(doc.id, doc.data()))
               .toList(),
         );
+  }
+
+  @override
+  Future<List<BookingModel>> getAllTransactions() async {
+    try {
+      // Không lọc `status` bằng where() để khỏi cần thêm composite index —
+      // dữ liệu cỡ portfolio project, lọc `pendingPayment` ở client là đủ
+      // đơn giản và rẻ.
+      final snapshot = await _bookings.orderBy('createdAt', descending: true).get();
+      return snapshot.docs
+          .map((doc) => BookingModel.fromFirestore(doc.id, doc.data()))
+          .where((b) => b.status != BookingStatus.pendingPayment)
+          .toList();
+    } on FirebaseException catch (e) {
+      throw ServerException(message: e.message ?? 'Không thể tải danh sách giao dịch');
+    }
   }
 }

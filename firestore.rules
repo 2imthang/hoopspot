@@ -54,15 +54,19 @@ service cloud.firestore {
         && resource.data.ownerId == request.auth.uid;
     }
 
-    // A booking can only be read by the User who made it or the Owner of
-    // the court it's for. Client can only ever CREATE a fresh pendingPayment
-    // booking for themself — every later status change (payment confirmed,
-    // cancelled, rain-cancelled...) goes through a path added in a later
-    // task, not a raw client update, so it can't be forged.
+    // A booking can only be read by the User who made it, the Owner of the
+    // court it's for, or Admin (TASK-035 — "Giao dịch" reads every booking
+    // read-only, to look up disputes by booking ID/user). Client can only
+    // ever CREATE a fresh pendingPayment booking for themself — every later
+    // status change (payment confirmed, cancelled, rain-cancelled...) goes
+    // through a path added in a later task, not a raw client update, so it
+    // can't be forged — this stays `false` even for Admin, on purpose (see
+    // functional-spec 4.11's anti-fraud rule, TASK-032's doc comment).
     match /bookings/{bookingId} {
       allow read: if request.auth != null
         && (request.auth.uid == resource.data.userId
-          || request.auth.uid == resource.data.ownerId);
+          || request.auth.uid == resource.data.ownerId
+          || isAdmin());
       allow create: if request.auth != null
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.status == 'pendingPayment';

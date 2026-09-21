@@ -104,4 +104,14 @@ class BookingRepositoryImpl implements BookingRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, List<BookingEntity>>> getAllTransactions() async {
+    try {
+      final bookings = await remoteDataSource.getAllTransactions();
+      return Right(bookings);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }
