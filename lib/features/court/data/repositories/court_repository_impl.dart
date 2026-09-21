@@ -124,4 +124,27 @@ class CourtRepositoryImpl implements CourtRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, List<CourtEntity>>> getAllCourts() async {
+    try {
+      final courts = await remoteDataSource.getAllCourts();
+      return Right(courts);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> setCourtHidden({
+    required String courtId,
+    required bool isHidden,
+  }) async {
+    try {
+      await remoteDataSource.setCourtHidden(courtId: courtId, isHidden: isHidden);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }

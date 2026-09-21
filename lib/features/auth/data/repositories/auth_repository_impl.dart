@@ -172,4 +172,27 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, List<UserEntity>>> getManageableUsers() async {
+    try {
+      final users = await remoteDataSource.getManageableUsers();
+      return Right(users);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> setUserLocked({
+    required String uid,
+    required bool locked,
+  }) async {
+    try {
+      await remoteDataSource.setUserLocked(uid: uid, locked: locked);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
 }

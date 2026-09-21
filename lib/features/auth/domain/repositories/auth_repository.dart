@@ -61,4 +61,14 @@ abstract class AuthRepository {
     required String uid,
     required String reason,
   });
+
+  /// Admin (TASK-034) — mọi User/Owner đã có trạng thái ổn định
+  /// (`active`/`locked`), không lấy Admin và không lấy Owner đang chờ
+  /// duyệt/bị từ chối (đã có màn riêng ở TASK-033).
+  Future<Either<Failure, List<UserEntity>>> getManageableUsers();
+
+  Future<Either<Failure, void>> setUserLocked({
+    required String uid,
+    required bool locked,
+  });
 }

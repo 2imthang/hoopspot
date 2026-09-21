@@ -36,7 +36,7 @@ class CourtEntity extends Equatable {
     required this.createdAt,
   });
 
-  CourtEntity copyWith({bool? isOutdoor}) {
+  CourtEntity copyWith({bool? isOutdoor, bool? isHidden}) {
     return CourtEntity(
       id: id,
       ownerId: ownerId,
@@ -48,7 +48,7 @@ class CourtEntity extends Equatable {
       pricePerSlot: pricePerSlot,
       amenities: amenities,
       isOutdoor: isOutdoor ?? this.isOutdoor,
-      isHidden: isHidden,
+      isHidden: isHidden ?? this.isHidden,
       weeklySchedule: weeklySchedule,
       createdAt: createdAt,
     );

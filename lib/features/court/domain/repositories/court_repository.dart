@@ -46,4 +46,15 @@ abstract class CourtRepository {
 
   /// All non-hidden courts — used by Home/Search for browsing.
   Future<Either<Failure, List<CourtEntity>>> getVisibleCourts();
+
+  /// TASK-034 — mọi sân, kể cả đã ẩn (Admin cần thấy để có thể hiện lại).
+  Future<Either<Failure, List<CourtEntity>>> getAllCourts();
+
+  /// TASK-034 — Admin ẩn/hiện sân vi phạm. Chỉ đổi đúng field `isHidden`,
+  /// không đụng tới field khác (Firestore rule cũng chỉ cho phép đúng
+  /// field này khi người gọi là Admin, xem `firestore.rules`).
+  Future<Either<Failure, void>> setCourtHidden({
+    required String courtId,
+    required bool isHidden,
+  });
 }

@@ -42,6 +42,10 @@ abstract class CourtRemoteDataSource {
   Future<CourtModel> getCourtById(String courtId);
 
   Future<List<CourtModel>> getVisibleCourts();
+
+  Future<List<CourtModel>> getAllCourts();
+
+  Future<void> setCourtHidden({required String courtId, required bool isHidden});
 }
 
 class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
@@ -187,6 +191,27 @@ class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
           .toList();
     } on FirebaseException catch (e) {
       throw ServerException(message: e.message ?? 'Không thể tải danh sách sân');
+    }
+  }
+
+  @override
+  Future<List<CourtModel>> getAllCourts() async {
+    try {
+      final snapshot = await _courts.orderBy('createdAt', descending: true).get();
+      return snapshot.docs
+          .map((doc) => CourtModel.fromFirestore(doc.id, doc.data()))
+          .toList();
+    } on FirebaseException catch (e) {
+      throw ServerException(message: e.message ?? 'Không thể tải danh sách sân');
+    }
+  }
+
+  @override
+  Future<void> setCourtHidden({required String courtId, required bool isHidden}) async {
+    try {
+      await _courts.doc(courtId).update({'isHidden': isHidden});
+    } on FirebaseException catch (e) {
+      throw ServerException(message: e.message ?? 'Không thể cập nhật trạng thái hiển thị');
     }
   }
 }

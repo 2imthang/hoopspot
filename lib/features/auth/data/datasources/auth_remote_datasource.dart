@@ -48,6 +48,10 @@ abstract class AuthRemoteDataSource {
   Future<void> approveOwner(String uid);
 
   Future<void> rejectOwner({required String uid, required String reason});
+
+  Future<List<UserModel>> getManageableUsers();
+
+  Future<void> setUserLocked({required String uid, required bool locked});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -251,6 +255,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     await firestore.collection(FirestoreCollections.users).doc(uid).update({
       'status': UserStatus.rejected.name,
       'rejectReason': reason,
+    });
+  }
+
+  @override
+  Future<List<UserModel>> getManageableUsers() async {
+    // Lọc role='admin' ở client vì Firestore không cho kết hợp whereIn
+    // (status) với 1 điều kiện bất-bằng khác (role) trên field khác mà
+    // không cần thêm composite index — tập dữ liệu nhỏ nên không đáng lo
+    // hiệu năng.
+    final snapshot = await firestore
+        .collection(FirestoreCollections.users)
+        .where('status', whereIn: [UserStatus.active.name, UserStatus.locked.name])
+        .get();
+    return snapshot.docs
+        .map((doc) => UserModel.fromFirestore(doc.id, doc.data()))
+        .where((user) => user.role != UserRole.admin)
+        .toList();
+  }
+
+  @override
+  Future<void> setUserLocked({required String uid, required bool locked}) async {
+    await firestore.collection(FirestoreCollections.users).doc(uid).update({
+      'status': (locked ? UserStatus.locked : UserStatus.active).name,
     });
   }
 
