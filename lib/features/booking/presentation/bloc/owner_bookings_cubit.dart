@@ -33,7 +33,21 @@ class OwnerBookingsCubit extends Cubit<OwnerBookingsState> {
     required this.getCourtByIdUseCase,
     required this.rainCancelBookingUseCase,
   }) : super(const OwnerBookingsLoading()) {
-    _subscription = watchOwnerBookingsUseCase(ownerId).listen(_onBookingsUpdate);
+    _subscribe();
+  }
+
+  void _subscribe() {
+    _subscription?.cancel();
+    _subscription = watchOwnerBookingsUseCase(ownerId).listen(
+      _onBookingsUpdate,
+      onError: (_) => emit(const OwnerBookingsError('Không thể tải danh sách đặt sân')),
+    );
+  }
+
+  /// Đăng ký lại stream từ đầu — dùng cho nút "Thử lại" ở [OwnerBookingsError].
+  void retry() {
+    emit(const OwnerBookingsLoading());
+    _subscribe();
   }
 
   Future<void> _onBookingsUpdate(List<BookingEntity> bookings) async {

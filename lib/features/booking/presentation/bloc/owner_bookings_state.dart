@@ -11,6 +11,17 @@ class OwnerBookingsLoading extends OwnerBookingsState {
   const OwnerBookingsLoading();
 }
 
+/// TASK-036 — bắt lỗi stream qua `onError` (xem [OwnerBookingsCubit]), tránh
+/// kẹt ở [OwnerBookingsLoading] mãi mãi khi mất mạng/mất quyền.
+class OwnerBookingsError extends OwnerBookingsState {
+  final String message;
+
+  const OwnerBookingsError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
 class OwnerBookingsItem extends Equatable {
   final BookingEntity booking;
   final String courtName;

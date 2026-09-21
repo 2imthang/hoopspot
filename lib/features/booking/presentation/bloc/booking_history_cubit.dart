@@ -36,7 +36,21 @@ class BookingHistoryCubit extends Cubit<BookingHistoryState> {
     required this.cancelBookingUseCase,
     required this.getMyReviewedBookingIdsUseCase,
   }) : super(const BookingHistoryLoading()) {
-    _subscription = watchMyBookingsUseCase(userId).listen(_onBookingsUpdate);
+    _subscribe();
+  }
+
+  void _subscribe() {
+    _subscription?.cancel();
+    _subscription = watchMyBookingsUseCase(userId).listen(
+      _onBookingsUpdate,
+      onError: (_) => emit(const BookingHistoryError('Không thể tải lịch sử đặt sân')),
+    );
+  }
+
+  /// Đăng ký lại stream từ đầu — dùng cho nút "Thử lại" ở [BookingHistoryError].
+  void retry() {
+    emit(const BookingHistoryLoading());
+    _subscribe();
   }
 
   Future<void> _onBookingsUpdate(List<BookingEntity> bookings) async {

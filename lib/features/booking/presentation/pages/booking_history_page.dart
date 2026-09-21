@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/error_state.dart';
+import '../../../../core/widgets/skeleton.dart';
 import '../../../review/presentation/pages/write_review_page.dart';
 import '../../domain/entities/booking_entity.dart';
 import '../bloc/booking_history_cubit.dart';
@@ -65,11 +68,20 @@ class _BookingHistoryView extends StatelessWidget {
 
   Widget _buildBody(BuildContext context, BookingHistoryState state) {
     if (state is BookingHistoryLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return SkeletonList(itemBuilder: () => const SkeletonListCard(), spacing: 12);
+    }
+    if (state is BookingHistoryError) {
+      return ErrorState(
+        message: state.message,
+        onRetry: () => context.read<BookingHistoryCubit>().retry(),
+      );
     }
     final loaded = state as BookingHistoryLoaded;
     if (loaded.items.isEmpty) {
-      return const Center(child: Text('Chưa có booking nào'));
+      return const EmptyState(
+        message: 'Chưa có booking nào',
+        icon: Icons.calendar_month_outlined,
+      );
     }
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

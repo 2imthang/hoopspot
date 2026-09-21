@@ -24,9 +24,21 @@ class OwnerApprovalCubit extends Cubit<OwnerApprovalState> {
     required this.approveOwnerUseCase,
     required this.rejectOwnerUseCase,
   }) : super(const OwnerApprovalLoading()) {
+    _subscribe();
+  }
+
+  void _subscribe() {
+    _subscription?.cancel();
     _subscription = watchPendingOwnersUseCase().listen(
       (owners) => emit(OwnerApprovalLoaded(owners: owners)),
+      onError: (_) => emit(const OwnerApprovalError('Không thể tải danh sách Chủ sân')),
     );
+  }
+
+  /// Đăng ký lại stream từ đầu — dùng cho nút "Thử lại" ở [OwnerApprovalError].
+  void retry() {
+    emit(const OwnerApprovalLoading());
+    _subscribe();
   }
 
   Future<void> approve(String uid) async {

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/notification_service.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/error_state.dart';
+import '../../../../core/widgets/skeleton.dart';
 
 /// TASK-030 — tab "Thông báo": danh sách các lời nhắc trước giờ chơi đang
 /// chờ (đã đặt lịch qua [NotificationService], chưa tới giờ hiện). Phạm vi
@@ -50,7 +53,21 @@ class _NotificationsPageState extends State<NotificationsPage> {
               future: _future,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return SkeletonList(itemBuilder: () => const SkeletonListCard(), spacing: 12);
+                }
+                if (snapshot.hasError) {
+                  return LayoutBuilder(
+                    builder: (context, constraints) => SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: SizedBox(
+                        height: constraints.maxHeight,
+                        child: ErrorState(
+                          message: 'Không thể tải thông báo',
+                          onRetry: _refresh,
+                        ),
+                      ),
+                    ),
+                  );
                 }
                 final reminders = snapshot.data ?? const [];
                 if (reminders.isEmpty) {
@@ -59,7 +76,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       physics: const AlwaysScrollableScrollPhysics(),
                       child: SizedBox(
                         height: constraints.maxHeight,
-                        child: const Center(child: Text('Chưa có thông báo nào')),
+                        child: const EmptyState(
+                          message: 'Chưa có thông báo nào',
+                          icon: Icons.notifications_none_rounded,
+                        ),
                       ),
                     ),
                   );

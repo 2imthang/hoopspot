@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/error_state.dart';
+import '../../../../core/widgets/skeleton.dart';
 import '../../domain/entities/court_entity.dart';
 import '../../domain/entities/day_schedule.dart';
 import '../bloc/owner_courts_cubit.dart';
@@ -75,21 +78,12 @@ class _OwnerCourtsView extends StatelessWidget {
 
   Widget _buildBody(BuildContext context, OwnerCourtsState state) {
     if (state is OwnerCourtsLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return SkeletonList(itemBuilder: () => const SkeletonCourtCard(), padding: const EdgeInsets.fromLTRB(16, 0, 16, 16));
     }
     if (state is OwnerCourtsError) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(state.message),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: () => context.read<OwnerCourtsCubit>().load(),
-              child: const Text('Thử lại'),
-            ),
-          ],
-        ),
+      return ErrorState(
+        message: state.message,
+        onRetry: () => context.read<OwnerCourtsCubit>().load(),
       );
     }
     final loaded = state as OwnerCourtsLoaded;
@@ -100,8 +94,11 @@ class _OwnerCourtsView extends StatelessWidget {
         children: [
           if (loaded.courts.isEmpty)
             const Padding(
-              padding: EdgeInsets.symmetric(vertical: 48),
-              child: Center(child: Text('Chưa có sân nào, thêm sân đầu tiên nhé')),
+              padding: EdgeInsets.symmetric(vertical: 32),
+              child: EmptyState(
+                message: 'Chưa có sân nào, thêm sân đầu tiên nhé',
+                icon: Icons.stadium_outlined,
+              ),
             )
           else
             for (final court in loaded.courts) ...[

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/error_state.dart';
+import '../../../../core/widgets/skeleton.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../bloc/owner_approval_cubit.dart';
 import '../widgets/reject_reason_dialog.dart';
@@ -69,11 +72,20 @@ class _OwnerApprovalView extends StatelessWidget {
 
   Widget _buildBody(BuildContext context, OwnerApprovalState state) {
     if (state is OwnerApprovalLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return SkeletonList(itemBuilder: () => const SkeletonListCard(), spacing: 12);
+    }
+    if (state is OwnerApprovalError) {
+      return ErrorState(
+        message: state.message,
+        onRetry: () => context.read<OwnerApprovalCubit>().retry(),
+      );
     }
     final loaded = state as OwnerApprovalLoaded;
     if (loaded.owners.isEmpty) {
-      return const Center(child: Text('Không có Chủ sân nào đang chờ duyệt'));
+      return const EmptyState(
+        message: 'Không có Chủ sân nào đang chờ duyệt',
+        icon: Icons.fact_check_outlined,
+      );
     }
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

@@ -5,6 +5,8 @@ import 'package:latlong2/latlong.dart' as latlong;
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/error_state.dart';
+import '../../../../core/widgets/skeleton.dart';
 import '../../../booking/presentation/pages/booking_slots_page.dart';
 import '../../../favorite/presentation/widgets/favorite_button.dart';
 import '../../../review/domain/entities/review_entity.dart';
@@ -36,24 +38,13 @@ class _CourtDetailView extends StatelessWidget {
         child: BlocBuilder<CourtDetailCubit, CourtDetailState>(
           builder: (context, state) {
             if (state is CourtDetailLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const _CourtDetailSkeleton();
             }
             if (state is CourtDetailError) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(state.message, textAlign: TextAlign.center),
-                      const SizedBox(height: 12),
-                      FilledButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Quay lại'),
-                      ),
-                    ],
-                  ),
-                ),
+              return ErrorState(
+                message: state.message,
+                retryLabel: 'Quay lại',
+                onRetry: () => Navigator.of(context).pop(),
               );
             }
             final loaded = state as CourtDetailLoaded;
@@ -536,6 +527,41 @@ class _BottomBookBar extends StatelessWidget {
             FilledButton(onPressed: onBookPressed, child: const Text('Đặt sân')),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _CourtDetailSkeleton extends StatelessWidget {
+  const _CourtDetailSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const AspectRatio(aspectRatio: 4 / 3, child: SkeletonBox(borderRadius: BorderRadius.zero)),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SkeletonBox(width: 200, height: 22),
+                const SizedBox(height: 10),
+                const SkeletonBox(width: 260, height: 14),
+                const SizedBox(height: 14),
+                const SkeletonBox(width: 140, height: 20),
+                const SizedBox(height: 24),
+                const SkeletonBox(width: 100, height: 18),
+                const SizedBox(height: 12),
+                const SkeletonBox(width: double.infinity, height: 14),
+                const SizedBox(height: 8),
+                const SkeletonBox(width: double.infinity, height: 14),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

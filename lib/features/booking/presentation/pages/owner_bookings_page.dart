@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/error_state.dart';
+import '../../../../core/widgets/skeleton.dart';
 import '../../domain/entities/booking_entity.dart';
 import '../bloc/owner_bookings_cubit.dart';
 import 'rain_cancel_confirmation_page.dart';
@@ -82,11 +85,20 @@ class _OwnerBookingsView extends StatelessWidget {
 
   Widget _buildBody(BuildContext context, OwnerBookingsState state) {
     if (state is OwnerBookingsLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return SkeletonList(itemBuilder: () => const SkeletonListCard(), spacing: 12);
+    }
+    if (state is OwnerBookingsError) {
+      return ErrorState(
+        message: state.message,
+        onRetry: () => context.read<OwnerBookingsCubit>().retry(),
+      );
     }
     final loaded = state as OwnerBookingsLoaded;
     if (loaded.items.isEmpty) {
-      return const Center(child: Text('Chưa có booking nào'));
+      return const EmptyState(
+        message: 'Chưa có booking nào',
+        icon: Icons.event_note_outlined,
+      );
     }
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

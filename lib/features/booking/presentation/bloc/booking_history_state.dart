@@ -11,6 +11,18 @@ class BookingHistoryLoading extends BookingHistoryState {
   const BookingHistoryLoading();
 }
 
+/// TASK-036 — trước đây stream lỗi (vd mất quyền/mất mạng) không có nhánh
+/// nào bắt, màn hình bị kẹt ở [BookingHistoryLoading] mãi mãi không rõ lý
+/// do. Nay bắt qua `onError` của subscription (xem [BookingHistoryCubit]).
+class BookingHistoryError extends BookingHistoryState {
+  final String message;
+
+  const BookingHistoryError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
 class BookingHistoryItem extends Equatable {
   final BookingEntity booking;
   final String courtName;

@@ -31,7 +31,11 @@ class BookingReminderScheduler {
 
   void start(String userId) {
     stop();
-    _subscription = watchMyBookingsUseCase(userId).listen(_reconcile);
+    // Dịch vụ nền, không có UI để hiện lỗi — chỉ cần không văng exception
+    // chưa bắt ra ngoài Zone nếu stream lỗi (vd mất quyền tạm thời khi đổi
+    // role). Booking mới vẫn được nhắc lại bình thường ở lần `start()` kế
+    // tiếp (đăng nhập lại).
+    _subscription = watchMyBookingsUseCase(userId).listen(_reconcile, onError: (_) {});
   }
 
   void stop() {

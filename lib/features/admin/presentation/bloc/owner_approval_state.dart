@@ -11,6 +11,17 @@ class OwnerApprovalLoading extends OwnerApprovalState {
   const OwnerApprovalLoading();
 }
 
+/// TASK-036 — bắt lỗi stream qua `onError` (xem [OwnerApprovalCubit]), tránh
+/// kẹt ở [OwnerApprovalLoading] mãi mãi khi mất mạng/mất quyền.
+class OwnerApprovalError extends OwnerApprovalState {
+  final String message;
+
+  const OwnerApprovalError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
 class OwnerApprovalLoaded extends OwnerApprovalState {
   final List<UserEntity> owners;
   final String? busyUid;

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/skeleton.dart';
 import '../../../court/presentation/pages/court_detail_page.dart';
 import '../../../home/presentation/widgets/court_card.dart';
 import '../bloc/favorite_cubit.dart';
@@ -51,12 +53,13 @@ class _FavoritesView extends StatelessWidget {
           child: BlocBuilder<FavoritesListCubit, FavoritesListState>(
             builder: (context, state) {
               if (state is FavoritesListLoading) {
-                return const Center(child: CircularProgressIndicator());
+                return SkeletonList(itemBuilder: () => const SkeletonCourtCard(), padding: const EdgeInsets.fromLTRB(16, 0, 16, 16));
               }
               final courts = (state as FavoritesListLoaded).courts;
               if (courts.isEmpty) {
-                return const Center(
-                  child: Text('Chưa có sân yêu thích nào'),
+                return const EmptyState(
+                  message: 'Chưa có sân yêu thích nào',
+                  icon: Icons.favorite_border_rounded,
                 );
               }
               return ListView(

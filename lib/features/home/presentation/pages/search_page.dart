@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/error_state.dart';
+import '../../../../core/widgets/skeleton.dart';
 import '../../../court/presentation/pages/court_detail_page.dart';
 import '../bloc/search_cubit.dart';
 import '../widgets/court_card.dart';
@@ -151,27 +154,19 @@ class _SearchViewState extends State<_SearchView> {
     return BlocBuilder<SearchCubit, SearchState>(
       builder: (context, state) {
         if (state.loading) {
-          return const Center(child: CircularProgressIndicator());
+          return SkeletonList(itemBuilder: () => const SkeletonCourtCard(), padding: EdgeInsets.zero);
         }
         if (state.errorMessage != null) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(state.errorMessage!),
-                const SizedBox(height: 12),
-                FilledButton(
-                  onPressed: () => context.read<SearchCubit>().load(),
-                  child: const Text('Thử lại'),
-                ),
-              ],
-            ),
+          return ErrorState(
+            message: state.errorMessage!,
+            onRetry: () => context.read<SearchCubit>().load(),
           );
         }
         final results = state.filteredCourts;
         if (results.isEmpty) {
-          return const Center(
-            child: Text('Không có sân phù hợp, thử nới lỏng bộ lọc'),
+          return const EmptyState(
+            message: 'Không có sân phù hợp, thử nới lỏng bộ lọc',
+            icon: Icons.search_off_outlined,
           );
         }
         return ListView(

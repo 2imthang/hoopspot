@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/usecase/usecase.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/error_state.dart';
+import '../../../../core/widgets/skeleton.dart';
 import '../../../admin/presentation/pages/owner_approval_page.dart';
 import '../../../admin/presentation/pages/transactions_page.dart';
 import '../../../admin/presentation/pages/user_court_management_page.dart';
@@ -344,32 +347,27 @@ class _HomeViewState extends State<_HomeView> {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         if (state is HomeLoading) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 32),
-            child: Center(child: CircularProgressIndicator()),
+          return SizedBox(
+            height: 600,
+            child: SkeletonList(itemBuilder: () => const SkeletonCourtCard()),
           );
         }
         if (state is HomeError) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 32),
-            child: Center(
-              child: Column(
-                children: [
-                  Text(state.message),
-                  const SizedBox(height: 12),
-                  FilledButton(
-                    onPressed: () => context.read<HomeCubit>().loadCourts(),
-                    child: const Text('Thử lại'),
-                  ),
-                ],
-              ),
+          return SizedBox(
+            height: 300,
+            child: ErrorState(
+              message: state.message,
+              onRetry: () => context.read<HomeCubit>().loadCourts(),
             ),
           );
         }
         if (state is HomeEmpty) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 32),
-            child: Center(child: Text('Chưa có sân nào, quay lại sau nhé')),
+          return const SizedBox(
+            height: 300,
+            child: EmptyState(
+              message: 'Chưa có sân nào, quay lại sau nhé',
+              icon: Icons.sports_basketball_outlined,
+            ),
           );
         }
         final courts = (state as HomeLoaded).courts;

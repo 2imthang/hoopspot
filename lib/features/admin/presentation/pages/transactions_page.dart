@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/error_state.dart';
+import '../../../../core/widgets/skeleton.dart';
 import '../bloc/transactions_cubit.dart';
 
 /// TASK-035 — "Giao dịch" (chỉ Admin), khớp mockup
@@ -65,26 +68,20 @@ class _TransactionsView extends StatelessWidget {
 
   Widget _buildBody(BuildContext context, TransactionsState state) {
     if (state is TransactionsLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return SkeletonList(itemBuilder: () => const SkeletonListCard(), spacing: 12);
     }
     if (state is TransactionsError) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(state.message),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: () => context.read<TransactionsCubit>().load(),
-              child: const Text('Thử lại'),
-            ),
-          ],
-        ),
+      return ErrorState(
+        message: state.message,
+        onRetry: () => context.read<TransactionsCubit>().load(),
       );
     }
     final loaded = state as TransactionsLoaded;
     if (loaded.items.isEmpty) {
-      return const Center(child: Text('Không có giao dịch nào'));
+      return const EmptyState(
+        message: 'Không có giao dịch nào',
+        icon: Icons.receipt_long_outlined,
+      );
     }
     return RefreshIndicator(
       onRefresh: () => context.read<TransactionsCubit>().load(),

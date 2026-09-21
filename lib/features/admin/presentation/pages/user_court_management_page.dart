@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/widgets/empty_state.dart';
+import '../../../../core/widgets/error_state.dart';
+import '../../../../core/widgets/skeleton.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../court/domain/entities/court_entity.dart';
 import '../bloc/manage_courts_cubit.dart';
@@ -117,17 +120,20 @@ class _UsersTab extends StatelessWidget {
       },
       builder: (context, state) {
         if (state is ManageUsersLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return SkeletonList(itemBuilder: () => const SkeletonListCard(), spacing: 12);
         }
         if (state is ManageUsersError) {
-          return _ErrorRetry(
+          return ErrorState(
             message: state.message,
             onRetry: () => context.read<ManageUsersCubit>().load(),
           );
         }
         final loaded = state as ManageUsersLoaded;
         if (loaded.users.isEmpty) {
-          return const Center(child: Text('Chưa có tài khoản nào'));
+          return const EmptyState(
+            message: 'Chưa có tài khoản nào',
+            icon: Icons.people_outline,
+          );
         }
         return RefreshIndicator(
           onRefresh: () => context.read<ManageUsersCubit>().load(),
@@ -239,17 +245,20 @@ class _CourtsTab extends StatelessWidget {
       },
       builder: (context, state) {
         if (state is ManageCourtsLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return SkeletonList(itemBuilder: () => const SkeletonListCard(), spacing: 12);
         }
         if (state is ManageCourtsError) {
-          return _ErrorRetry(
+          return ErrorState(
             message: state.message,
             onRetry: () => context.read<ManageCourtsCubit>().load(),
           );
         }
         final loaded = state as ManageCourtsLoaded;
         if (loaded.courts.isEmpty) {
-          return const Center(child: Text('Chưa có sân nào'));
+          return const EmptyState(
+            message: 'Chưa có sân nào',
+            icon: Icons.stadium_outlined,
+          );
         }
         return RefreshIndicator(
           onRefresh: () => context.read<ManageCourtsCubit>().load(),
@@ -316,27 +325,6 @@ class _CourtRow extends StatelessWidget {
             value: !court.isHidden,
             onChanged: busy ? null : (_) => onToggle(),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ErrorRetry extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorRetry({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(message),
-          const SizedBox(height: 12),
-          FilledButton(onPressed: onRetry, child: const Text('Thử lại')),
         ],
       ),
     );
