@@ -103,11 +103,11 @@ class _AccountStatusView extends StatelessWidget {
         return [
           CircleAvatar(
             radius: 40,
-            backgroundColor: AppColors.warning.shade100,
+            backgroundColor: AppColors.warningFg(context).withValues(alpha: 0.15),
             child: Icon(
               Icons.access_time_rounded,
               size: 36,
-              color: AppColors.warning.shade800,
+              color: AppColors.warningFg(context),
             ),
           ),
           const SizedBox(height: 24),

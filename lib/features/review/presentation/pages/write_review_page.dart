@@ -118,7 +118,7 @@ class _WriteReviewPageState extends State<WriteReviewPage> {
                       }),
                       icon: Icon(
                         star <= _rating ? Icons.star : Icons.star_border,
-                        color: AppColors.ratingStar,
+                        color: AppColors.ratingStarFg(context),
                       ),
                     ),
                 ],

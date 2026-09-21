@@ -146,13 +146,13 @@ class _OwnerCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withValues(alpha: 0.15),
+                  color: AppColors.warningFg(context).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   'Chờ duyệt',
                   style: theme.textTheme.labelSmall?.copyWith(
-                    color: AppColors.warning.shade800,
+                    color: AppColors.warningFg(context),
                     fontWeight: FontWeight.bold,
                   ),
                 ),

@@ -109,7 +109,7 @@ class _CourtDetailBody extends StatelessWidget {
                           ),
                         ),
                         if (state.reviews.isNotEmpty) ...[
-                          const Icon(Icons.star, size: 18, color: AppColors.ratingStar),
+                          Icon(Icons.star, size: 18, color: AppColors.ratingStarFg(context)),
                           const SizedBox(width: 2),
                           Text(
                             '${state.averageRating.toStringAsFixed(1)} (${state.reviews.length})',
@@ -372,7 +372,7 @@ class _ReviewCard extends StatelessWidget {
                         (i) => Icon(
                           i < review.rating ? Icons.star : Icons.star_border,
                           size: 14,
-                          color: AppColors.ratingStar,
+                          color: AppColors.ratingStarFg(context),
                         ),
                       ),
                     ),

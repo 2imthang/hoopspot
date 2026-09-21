@@ -17,11 +17,11 @@ class BookingStatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final (label, color) = switch (booking.status) {
-      BookingStatus.pendingPayment => ('Chờ xác nhận', AppColors.warning),
-      BookingStatus.confirmed => ('Đã xác nhận', AppColors.success),
+      BookingStatus.pendingPayment => ('Chờ xác nhận', AppColors.warningFg(context)),
+      BookingStatus.confirmed => ('Đã xác nhận', AppColors.successFg(context)),
       BookingStatus.completed => ('Hoàn thành', theme.colorScheme.primary),
       BookingStatus.cancelled => booking.refundStatus == RefundStatusValue.refunded
-          ? ('Đã hoàn tiền', AppColors.info)
+          ? ('Đã hoàn tiền', AppColors.infoFg(context))
           : ('Đã hủy', theme.colorScheme.error),
     };
 

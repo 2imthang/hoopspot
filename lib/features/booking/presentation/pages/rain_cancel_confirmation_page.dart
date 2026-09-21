@@ -116,13 +116,13 @@ class _RainCancelConfirmationPageState extends State<RainCancelConfirmationPage>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.warning.withValues(alpha: 0.15),
+                  color: AppColors.warningFg(context).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.warning_amber_rounded, color: AppColors.warning.shade800, size: 20),
+                    Icon(Icons.warning_amber_rounded, color: AppColors.warningFg(context), size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: RichText(

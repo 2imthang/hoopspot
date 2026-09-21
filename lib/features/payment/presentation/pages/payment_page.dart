@@ -69,7 +69,7 @@ class _PaymentView extends StatelessWidget {
             if (state is PaymentResultSuccess) {
               return _MessageView(
                 icon: Icons.check_circle,
-                color: AppColors.success,
+                color: AppColors.successFg(context),
                 title: 'Thanh toán thành công',
                 message: 'Sân của bạn đã được xác nhận đặt.',
                 showBackButton: true,
@@ -87,7 +87,7 @@ class _PaymentView extends StatelessWidget {
             // PaymentResultTimeout
             return _MessageView(
               icon: Icons.hourglass_top,
-              color: AppColors.warning.shade800,
+              color: AppColors.warningFg(context),
               title: 'Chưa có kết quả',
               message:
                   'Chưa nhận được xác nhận từ VNPay. Kiểm tra lại trạng thái đặt sân trong ít phút nữa.',

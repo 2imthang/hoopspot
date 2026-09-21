@@ -215,7 +215,7 @@ class _TransactionCard extends StatelessWidget {
                 : formatVnd(booking.pricePerSlot),
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: refunded ? AppColors.info : null,
+              color: refunded ? AppColors.infoFg(context) : null,
             ),
           ),
         ],
@@ -233,8 +233,8 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final (label, color) = switch (status) {
-      TransactionStatus.success => ('Thành công', AppColors.success),
-      TransactionStatus.refunded => ('Đã hoàn tiền', AppColors.info),
+      TransactionStatus.success => ('Thành công', AppColors.successFg(context)),
+      TransactionStatus.refunded => ('Đã hoàn tiền', AppColors.infoFg(context)),
       TransactionStatus.failed => ('Thất bại', theme.colorScheme.error),
     };
 

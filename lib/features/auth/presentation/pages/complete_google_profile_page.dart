@@ -129,7 +129,7 @@ class _CompleteGoogleProfileViewState
             'Tài khoản cần được Admin duyệt trước khi sử dụng',
             style: Theme.of(
               context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.warning.shade800),
+            ).textTheme.bodySmall?.copyWith(color: AppColors.warningFg(context)),
           ),
         ],
         const SizedBox(height: 24),

@@ -215,14 +215,14 @@ class _OwnerCourtCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: (_isOpenNow ? AppColors.success : theme.colorScheme.error)
+                  color: (_isOpenNow ? AppColors.successFg(context) : theme.colorScheme.error)
                       .withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   _isOpenNow ? 'Đang mở' : 'Tạm đóng',
                   style: theme.textTheme.labelSmall?.copyWith(
-                    color: _isOpenNow ? AppColors.success : theme.colorScheme.error,
+                    color: _isOpenNow ? AppColors.successFg(context) : theme.colorScheme.error,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
