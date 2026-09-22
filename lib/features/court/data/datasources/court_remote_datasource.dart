@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/constants/firestore_collections.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/error/network_error_mapper.dart';
 import '../../domain/entities/court_entity.dart';
 import '../../domain/entities/day_schedule.dart';
 import '../models/court_model.dart';
@@ -96,7 +97,9 @@ class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
       await docRef.set(court.toFirestore());
       return court;
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể tạo sân');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể tạo sân');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -124,7 +127,9 @@ class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
       });
       return getCourtById(courtId);
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể cập nhật sân');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể cập nhật sân');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -133,7 +138,9 @@ class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
     try {
       await _courts.doc(courtId).delete();
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể xóa sân');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể xóa sân');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -148,7 +155,9 @@ class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
       });
       return getCourtById(courtId);
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể cập nhật giờ hoạt động');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể cập nhật giờ hoạt động');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -162,7 +171,9 @@ class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
           .map((doc) => CourtModel.fromFirestore(doc.id, doc.data()))
           .toList();
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể tải danh sách sân');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể tải danh sách sân');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -175,7 +186,9 @@ class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
       }
       return CourtModel.fromFirestore(doc.id, doc.data()!);
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể tải thông tin sân');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể tải thông tin sân');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -190,7 +203,9 @@ class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
           .map((doc) => CourtModel.fromFirestore(doc.id, doc.data()))
           .toList();
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể tải danh sách sân');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể tải danh sách sân');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -202,7 +217,9 @@ class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
           .map((doc) => CourtModel.fromFirestore(doc.id, doc.data()))
           .toList();
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể tải danh sách sân');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể tải danh sách sân');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -211,7 +228,9 @@ class CourtRemoteDataSourceImpl implements CourtRemoteDataSource {
     try {
       await _courts.doc(courtId).update({'isHidden': isHidden});
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể cập nhật trạng thái hiển thị');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể cập nhật trạng thái hiển thị');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 }

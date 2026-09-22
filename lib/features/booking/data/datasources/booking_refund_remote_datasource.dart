@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../../core/constants/payment_worker_constants.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/error/network_error_mapper.dart';
 
 /// Gọi Cloudflare Worker để hủy + hoàn tiền 1 booking (TASK-025/027) — khác
 /// với [BookingRemoteDataSource] vì đây là gọi HTTP tới Worker, không phải
@@ -29,10 +30,9 @@ class BookingRefundRemoteDataSourceImpl implements BookingRefundRemoteDataSource
         data: {'userId': userId, 'bookingId': bookingId},
       );
     } on DioException catch (e) {
-      throw ServerException(
-        message: _errorMessageOf(e, fallback: 'Không thể hủy booking'),
-        statusCode: e.response?.statusCode,
-      );
+      final message = dioErrorMessage(e, fallback: 'Không thể hủy booking');
+      if (isNetworkDioError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message, statusCode: e.response?.statusCode);
     }
   }
 
@@ -47,16 +47,9 @@ class BookingRefundRemoteDataSourceImpl implements BookingRefundRemoteDataSource
         data: {'ownerId': ownerId, 'bookingId': bookingId},
       );
     } on DioException catch (e) {
-      throw ServerException(
-        message: _errorMessageOf(e, fallback: 'Không thể đánh dấu hủy do mưa'),
-        statusCode: e.response?.statusCode,
-      );
+      final message = dioErrorMessage(e, fallback: 'Không thể đánh dấu hủy do mưa');
+      if (isNetworkDioError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message, statusCode: e.response?.statusCode);
     }
-  }
-
-  String _errorMessageOf(DioException e, {required String fallback}) {
-    return (e.response?.data is Map ? e.response?.data['error'] : null) as String? ??
-        e.message ??
-        fallback;
   }
 }

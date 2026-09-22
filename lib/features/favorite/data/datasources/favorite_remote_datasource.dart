@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../../core/constants/firestore_collections.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/error/network_error_mapper.dart';
 
 abstract class FavoriteRemoteDataSource {
   Future<Set<String>> getFavoriteCourtIds(String userId);
@@ -26,7 +27,9 @@ class FavoriteRemoteDataSourceImpl implements FavoriteRemoteDataSource {
       final ids = doc.data()?['courtIds'] as List?;
       return Set<String>.from(ids ?? const []);
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể tải danh sách yêu thích');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể tải danh sách yêu thích');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -37,7 +40,9 @@ class FavoriteRemoteDataSourceImpl implements FavoriteRemoteDataSource {
         'courtIds': FieldValue.arrayUnion([courtId]),
       }, SetOptions(merge: true));
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể thêm yêu thích');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể thêm yêu thích');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -48,7 +53,9 @@ class FavoriteRemoteDataSourceImpl implements FavoriteRemoteDataSource {
         'courtIds': FieldValue.arrayRemove([courtId]),
       }, SetOptions(merge: true));
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể xóa yêu thích');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể xóa yêu thích');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 }

@@ -31,6 +31,8 @@ class BookingRepositoryImpl implements BookingRepository {
       return Right(booking);
     } on SlotUnavailableException {
       return const Left(SlotUnavailableFailure());
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -47,6 +49,8 @@ class BookingRepositoryImpl implements BookingRepository {
         date: date,
       );
       return Right(bookedSlots);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -70,6 +74,8 @@ class BookingRepositoryImpl implements BookingRepository {
     try {
       await refundRemoteDataSource.cancelBooking(userId: userId, bookingId: bookingId);
       return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -82,6 +88,8 @@ class BookingRepositoryImpl implements BookingRepository {
     try {
       final bookings = await remoteDataSource.getOwnerCourtBookings(courtId);
       return Right(bookings);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -100,6 +108,8 @@ class BookingRepositoryImpl implements BookingRepository {
     try {
       await refundRemoteDataSource.rainCancelBooking(ownerId: ownerId, bookingId: bookingId);
       return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -110,6 +120,8 @@ class BookingRepositoryImpl implements BookingRepository {
     try {
       final bookings = await remoteDataSource.getAllTransactions();
       return Right(bookings);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }

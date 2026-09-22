@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/constants/firestore_collections.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/error/network_error_mapper.dart';
 import '../models/review_model.dart';
 
 abstract class ReviewRemoteDataSource {
@@ -52,7 +53,9 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
       // `firestore.rules`).
       await _reviews.doc(bookingId).set(review.toFirestore());
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể gửi đánh giá');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể gửi đánh giá');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -68,7 +71,9 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
           .map((doc) => ReviewModel.fromFirestore(doc.id, doc.data()))
           .toList();
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể tải đánh giá');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể tải đánh giá');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -78,7 +83,9 @@ class ReviewRemoteDataSourceImpl implements ReviewRemoteDataSource {
       final snapshot = await _reviews.where('userId', isEqualTo: userId).get();
       return snapshot.docs.map((doc) => doc.id).toSet();
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể tải danh sách đã đánh giá');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể tải danh sách đã đánh giá');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 }

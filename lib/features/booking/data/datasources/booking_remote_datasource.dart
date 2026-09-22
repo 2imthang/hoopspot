@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../../core/constants/firestore_collections.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/error/network_error_mapper.dart';
 import '../../domain/entities/booking_entity.dart';
 import '../models/booking_model.dart';
 
@@ -155,7 +156,9 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
       }
       return booking;
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể tạo booking');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể tạo booking');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -186,9 +189,9 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
       }
       return bookedSlots;
     } on FirebaseException catch (e) {
-      throw ServerException(
-        message: e.message ?? 'Không thể tải danh sách khung giờ',
-      );
+      final message = firebaseErrorMessage(e, fallback: 'Không thể tải danh sách khung giờ');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -234,7 +237,9 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           .map((doc) => BookingModel.fromFirestore(doc.id, doc.data()))
           .toList();
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể tải danh sách booking');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể tải danh sách booking');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 
@@ -263,7 +268,9 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           .where((b) => b.status != BookingStatus.pendingPayment)
           .toList();
     } on FirebaseException catch (e) {
-      throw ServerException(message: e.message ?? 'Không thể tải danh sách giao dịch');
+      final message = firebaseErrorMessage(e, fallback: 'Không thể tải danh sách giao dịch');
+      if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
+      throw ServerException(message: message);
     }
   }
 }

@@ -3,6 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import '../constants/cloudinary_constants.dart';
 import '../error/failures.dart';
+import '../error/network_error_mapper.dart';
 
 /// Shared across features that need to upload a photo (court images now,
 /// avatar later) — everything goes to Cloudinary, never Firebase Storage.
@@ -28,9 +29,8 @@ class CloudinaryImageUploadService implements ImageUploadService {
       );
       return Right(response.data!['secure_url'] as String);
     } on DioException catch (e) {
-      final message =
-          e.response?.data?['error']?['message'] as String? ??
-          'Tải ảnh lên thất bại';
+      final message = dioErrorMessage(e, fallback: 'Tải ảnh lên thất bại');
+      if (isNetworkDioError(e)) return Left(NetworkFailure(message));
       return Left(ServerFailure(message));
     }
   }

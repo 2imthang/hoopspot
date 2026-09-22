@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../../core/constants/payment_worker_constants.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/error/network_error_mapper.dart';
 import '../models/payment_url_model.dart';
 
 abstract class PaymentRemoteDataSource {
@@ -31,11 +32,8 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
       );
       return PaymentUrlModel.fromJson(response.data!);
     } on DioException catch (e) {
-      final message =
-          (e.response?.data is Map ? e.response?.data['error'] : null)
-              as String? ??
-          e.message ??
-          'Không thể tạo URL thanh toán';
+      final message = dioErrorMessage(e, fallback: 'Không thể tạo URL thanh toán');
+      if (isNetworkDioError(e)) throw NetworkException(message: message);
       throw ServerException(message: message, statusCode: e.response?.statusCode);
     }
   }

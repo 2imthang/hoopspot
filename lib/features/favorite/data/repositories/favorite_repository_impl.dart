@@ -14,6 +14,8 @@ class FavoriteRepositoryImpl implements FavoriteRepository {
     try {
       final ids = await remoteDataSource.getFavoriteCourtIds(userId);
       return Right(ids);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -27,6 +29,8 @@ class FavoriteRepositoryImpl implements FavoriteRepository {
     try {
       await remoteDataSource.addFavorite(userId: userId, courtId: courtId);
       return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -40,6 +44,8 @@ class FavoriteRepositoryImpl implements FavoriteRepository {
     try {
       await remoteDataSource.removeFavorite(userId: userId, courtId: courtId);
       return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }

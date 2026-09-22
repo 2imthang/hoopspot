@@ -21,6 +21,8 @@ class PaymentRepositoryImpl implements PaymentRepository {
         bookingIds: bookingIds,
       );
       return Right(result);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }

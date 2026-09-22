@@ -34,6 +34,8 @@ class CourtRepositoryImpl implements CourtRepository {
         isOutdoor: isOutdoor,
       );
       return Right(court);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -64,6 +66,8 @@ class CourtRepositoryImpl implements CourtRepository {
         isOutdoor: isOutdoor,
       );
       return Right(court);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -74,6 +78,8 @@ class CourtRepositoryImpl implements CourtRepository {
     try {
       await remoteDataSource.deleteCourt(courtId);
       return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -90,6 +96,8 @@ class CourtRepositoryImpl implements CourtRepository {
         weeklySchedule: weeklySchedule,
       );
       return Right(court);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -100,6 +108,8 @@ class CourtRepositoryImpl implements CourtRepository {
     try {
       final courts = await remoteDataSource.getOwnerCourts();
       return Right(courts);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -110,6 +120,8 @@ class CourtRepositoryImpl implements CourtRepository {
     try {
       final court = await remoteDataSource.getCourtById(courtId);
       return Right(court);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -120,6 +132,8 @@ class CourtRepositoryImpl implements CourtRepository {
     try {
       final courts = await remoteDataSource.getVisibleCourts();
       return Right(courts);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -130,6 +144,8 @@ class CourtRepositoryImpl implements CourtRepository {
     try {
       final courts = await remoteDataSource.getAllCourts();
       return Right(courts);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -143,6 +159,8 @@ class CourtRepositoryImpl implements CourtRepository {
     try {
       await remoteDataSource.setCourtHidden(courtId: courtId, isHidden: isHidden);
       return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }

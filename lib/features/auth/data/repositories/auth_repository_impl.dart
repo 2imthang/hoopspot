@@ -28,6 +28,8 @@ class AuthRepositoryImpl implements AuthRepository {
         role: role,
       );
       return Right(user);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -44,6 +46,8 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
       );
       return Right(user);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -54,6 +58,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final result = await remoteDataSource.signInWithGoogle();
       return Right(result);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -78,6 +84,8 @@ class AuthRepositoryImpl implements AuthRepository {
         role: role,
       );
       return Right(user);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -88,6 +96,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await remoteDataSource.sendEmailVerification();
       return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -98,6 +108,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final verified = await remoteDataSource.isEmailVerified();
       return Right(verified);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -108,6 +120,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await remoteDataSource.signOut();
       return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -118,6 +132,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final user = await remoteDataSource.getCurrentUser();
       return Right(user);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -128,6 +144,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final user = await remoteDataSource.resubmitOwnerApplication();
       return Right(user);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -140,6 +158,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await remoteDataSource.sendPasswordResetEmail(email);
       return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -155,6 +175,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await remoteDataSource.approveOwner(uid);
       return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -168,6 +190,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await remoteDataSource.rejectOwner(uid: uid, reason: reason);
       return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -178,6 +202,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final users = await remoteDataSource.getManageableUsers();
       return Right(users);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -191,6 +217,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await remoteDataSource.setUserLocked(uid: uid, locked: locked);
       return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }

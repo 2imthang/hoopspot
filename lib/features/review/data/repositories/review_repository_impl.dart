@@ -25,6 +25,8 @@ class ReviewRepositoryImpl implements ReviewRepository {
         comment: comment,
       );
       return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -35,6 +37,8 @@ class ReviewRepositoryImpl implements ReviewRepository {
     try {
       final reviews = await remoteDataSource.getCourtReviews(courtId);
       return Right(reviews);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
@@ -45,6 +49,8 @@ class ReviewRepositoryImpl implements ReviewRepository {
     try {
       final ids = await remoteDataSource.getMyReviewedBookingIds(userId);
       return Right(ids);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
