@@ -51,6 +51,7 @@ class _CourtFormView extends StatefulWidget {
 
 class _CourtFormViewState extends State<_CourtFormView> {
   final _formKey = GlobalKey<FormState>();
+  final _mapController = MapController();
   late final TextEditingController _nameController;
   late final TextEditingController _addressController;
   late final TextEditingController _priceController;
@@ -88,6 +89,17 @@ class _CourtFormViewState extends State<_CourtFormView> {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (picked == null || !context.mounted) return;
     context.read<CourtFormCubit>().addImage(File(picked.path));
+  }
+
+  Future<void> _searchAddress(BuildContext context) async {
+    final address = _addressController.text.trim();
+    if (address.isEmpty) return;
+    FocusScope.of(context).unfocus();
+    final point = await context.read<CourtFormCubit>().searchAddress(address);
+    if (point == null || !context.mounted) return;
+    final newCenter = latlong.LatLng(point.latitude, point.longitude);
+    setState(() => _center = newCenter);
+    _mapController.move(newCenter, 16);
   }
 
   Future<void> _openScheduleConfig(BuildContext context) async {
@@ -159,7 +171,22 @@ class _CourtFormViewState extends State<_CourtFormView> {
                     validator: (v) =>
                         (v == null || v.trim().isEmpty) ? 'Vui lòng nhập địa chỉ' : null,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: OutlinedButton.icon(
+                      onPressed: state.geocoding ? null : () => _searchAddress(context),
+                      icon: state.geocoding
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.search, size: 18),
+                      label: const Text('Tìm vị trí trên bản đồ'),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   AuthTextField(
                     label: 'Giá mỗi ca (đ/2 tiếng)',
                     hint: 'VD: 250000',
@@ -182,6 +209,7 @@ class _CourtFormViewState extends State<_CourtFormView> {
                   ),
                   const SizedBox(height: 8),
                   _LocationPicker(
+                    mapController: _mapController,
                     center: _center,
                     onTap: (point) => setState(() => _center = point),
                   ),
@@ -307,10 +335,15 @@ class _ImagesRow extends StatelessWidget {
 }
 
 class _LocationPicker extends StatelessWidget {
+  final MapController mapController;
   final latlong.LatLng center;
   final ValueChanged<latlong.LatLng> onTap;
 
-  const _LocationPicker({required this.center, required this.onTap});
+  const _LocationPicker({
+    required this.mapController,
+    required this.center,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -319,6 +352,7 @@ class _LocationPicker extends StatelessWidget {
       child: SizedBox(
         height: 200,
         child: FlutterMap(
+          mapController: mapController,
           options: MapOptions(
             initialCenter: center,
             initialZoom: 15,

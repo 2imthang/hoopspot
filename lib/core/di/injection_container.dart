@@ -10,7 +10,9 @@ import '../../features/notification/di/notification_injection.dart';
 import '../../features/payment/di/payment_injection.dart';
 import '../../features/review/di/review_injection.dart';
 import '../network/dio_client.dart';
+import '../services/geocoding_service.dart';
 import '../services/image_upload_service.dart';
+import '../services/location_service.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -24,6 +26,12 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<ImageUploadService>(
     () => CloudinaryImageUploadService(sl<DioClient>().dio),
+  );
+  sl.registerLazySingleton<GeocodingService>(
+    () => NominatimGeocodingService(sl<DioClient>().dio),
+  );
+  sl.registerLazySingleton<LocationService>(
+    () => DeviceLocationService(sl<GeocodingService>()),
   );
 
   initAuthDependencies();

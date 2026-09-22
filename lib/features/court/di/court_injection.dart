@@ -1,4 +1,5 @@
 import '../../../core/di/injection_container.dart';
+import '../../../core/services/geocoding_service.dart';
 import '../../../core/services/image_upload_service.dart';
 import '../../booking/domain/usecases/get_owner_court_bookings_usecase.dart';
 import '../../review/domain/usecases/get_court_reviews_usecase.dart';
@@ -54,6 +55,7 @@ void initCourtDependencies() {
       createCourtUseCase: sl(),
       updateCourtUseCase: sl(),
       imageUploadService: sl<ImageUploadService>(),
+      geocodingService: sl<GeocodingService>(),
       initialImageUrls: initialImageUrls,
     ),
   );

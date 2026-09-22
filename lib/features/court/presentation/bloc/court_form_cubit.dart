@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/services/geocoding_service.dart';
 import '../../../../core/services/image_upload_service.dart';
 import '../../domain/usecases/create_court_usecase.dart';
 import '../../domain/usecases/update_court_usecase.dart';
@@ -16,13 +17,33 @@ class CourtFormCubit extends Cubit<CourtFormState> {
   final CreateCourtUseCase createCourtUseCase;
   final UpdateCourtUseCase updateCourtUseCase;
   final ImageUploadService imageUploadService;
+  final GeocodingService geocodingService;
 
   CourtFormCubit({
     required this.createCourtUseCase,
     required this.updateCourtUseCase,
     required this.imageUploadService,
+    required this.geocodingService,
     List<String> initialImageUrls = const [],
   }) : super(CourtFormState(imageUrls: initialImageUrls));
+
+  /// Trả về tọa độ tìm được để trang tự di chuyển bản đồ (`MapController`) —
+  /// cubit không cầm `LatLng`/`MapController` vì đó là chi tiết UI thuần
+  /// túy, không phải state cần lưu lại giữa các lần rebuild.
+  Future<GeocodedPoint?> searchAddress(String address) async {
+    emit(state.copyWith(geocoding: true, clearError: true));
+    final result = await geocodingService.search(address);
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(geocoding: false, errorMessage: failure.message));
+        return null;
+      },
+      (point) {
+        emit(state.copyWith(geocoding: false));
+        return point;
+      },
+    );
+  }
 
   Future<void> addImage(File file) async {
     emit(state.copyWith(uploadingImage: true, clearError: true));

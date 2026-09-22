@@ -5,6 +5,10 @@
          đặt hệ thống) nên chỉ cần quyền hiện thông báo. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Hiển thị "Vị trí hiện tại" thật trên Home/Search + tính khoảng cách
+         tới sân — coarse là đủ, không cần độ chính xác GPS chi tiết. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <application
         android:label="hoop_spot"
         android:name="${applicationName}"

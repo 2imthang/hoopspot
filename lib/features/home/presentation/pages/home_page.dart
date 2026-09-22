@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/location_service.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/error_state.dart';
@@ -48,6 +49,22 @@ class _HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<_HomeView> {
   int _selectedIndex = 0;
+
+  // Text tĩnh mặc định trước khi đọc được GPS thật (hoặc nếu bị từ chối
+  // quyền/không có định vị) — giữ trải nghiệm không bị trống rỗng.
+  String _locationLabel = 'Quận 1, TP.HCM';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLocation();
+  }
+
+  Future<void> _loadLocation() async {
+    final result = await sl<LocationService>().getCurrentLocation();
+    if (!mounted) return;
+    result.fold((_) {}, (location) => setState(() => _locationLabel = location.label));
+  }
 
   /// Owner thấy thêm tab "Sân của tôi" (TASK-031) — vẫn dùng chung
   /// `HomePage`, không tách app/dashboard riêng, đúng tinh thần CLAUDE.md
@@ -243,10 +260,14 @@ class _HomeViewState extends State<_HomeView> {
               ),
               Row(
                 children: [
-                  Text(
-                    'Quận 1, TP.HCM',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                  Flexible(
+                    child: Text(
+                      _locationLabel,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const Icon(Icons.expand_more),
