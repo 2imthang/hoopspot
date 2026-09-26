@@ -10,9 +10,12 @@ import { formatVnpDate, hmacSha512Hex } from './vnpay';
 
 const VNPAY_REFUND_URL = 'https://sandbox.vnpayment.vn/merchant_webapi/api/transaction';
 
-// 02 = hoàn toàn phần, 03 = hoàn 1 phần. Luôn dùng 03 với đúng số tiền của
-// booking bị hủy — đơn giản hơn vì xử lý giống nhau dù payment gốc có 1 hay
-// nhiều booking (không cần biết đây có phải toàn bộ payment hay không).
+// 02 = hoàn toàn phần, 03 = hoàn 1 phần. Thực tế test trên Sandbox thật cho
+// thấy VNPay từ chối (responseCode 93 "Invalid refund amount") nếu gửi 03
+// nhưng `amount` lại bằng đúng 100% số tiền giao dịch gốc — bắt buộc phải
+// gửi đúng 02 cho trường hợp đó, 03 chỉ dùng khi payment gốc gồm nhiều
+// booking và chỉ hủy 1 phần trong số đó.
+const VNP_TRANSACTION_TYPE_FULL = '02';
 const VNP_TRANSACTION_TYPE_PARTIAL = '03';
 
 export interface RefundInput {
@@ -20,6 +23,9 @@ export interface RefundInput {
 	hashSecret: string;
 	txnRef: string;
 	amount: number;
+	/** Số tiền gốc của cả payment (có thể gồm nhiều booking) — để tự chọn
+	 * đúng loại giao dịch hoàn tiền (02 toàn phần / 03 một phần). */
+	originalPaymentAmount: number;
 	transactionNo: string;
 	/** `vnp_PayDate` gốc, đã ở định dạng yyyyMMddHHmmss — lấy từ payment doc. */
 	transactionDate: string;
@@ -39,13 +45,14 @@ export async function callVnpayRefund(input: RefundInput): Promise<RefundResult>
 	const now = new Date();
 	const createDate = formatVnpDate(now);
 	const amountX100 = String(Math.round(input.amount * 100));
+	const transactionType = input.amount >= input.originalPaymentAmount ? VNP_TRANSACTION_TYPE_FULL : VNP_TRANSACTION_TYPE_PARTIAL;
 
 	const body: Record<string, string> = {
 		vnp_RequestId: requestId,
 		vnp_Version: '2.1.0',
 		vnp_Command: 'refund',
 		vnp_TmnCode: input.tmnCode,
-		vnp_TransactionType: VNP_TRANSACTION_TYPE_PARTIAL,
+		vnp_TransactionType: transactionType,
 		vnp_TxnRef: input.txnRef,
 		vnp_Amount: amountX100,
 		vnp_TransactionNo: input.transactionNo,
@@ -90,7 +97,13 @@ export async function callVnpayRefund(input: RefundInput): Promise<RefundResult>
 	}
 
 	const data = (await response.json()) as Record<string, string>;
-	const isSuccess = data.vnp_ResponseCode === '00' && data.vnp_TransactionStatus === '00';
+
+	// `vnp_ResponseCode` là chỉ số thành công DUY NHẤT cho lệnh `refund` này
+	// (đối chiếu thật trên Sandbox: "00" kèm message "Refund success" —
+	// response KHÔNG có field `vnp_TransactionStatus`, trước đây bắt buộc
+	// so sánh field không tồn tại này khiến 1 giao dịch hoàn tiền thật sự đã
+	// thành công vẫn bị coi là lỗi).
+	const isSuccess = data.vnp_ResponseCode === '00';
 
 	return {
 		success: isSuccess,

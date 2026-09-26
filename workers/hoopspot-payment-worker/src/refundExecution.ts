@@ -87,6 +87,7 @@ export async function executeRefund(params: ExecuteRefundParams): Promise<Respon
 		hashSecret: params.hashSecret,
 		txnRef: params.txnRef,
 		amount: params.pricePerSlot,
+		originalPaymentAmount: Number(params.payment.amount ?? params.pricePerSlot),
 		transactionNo: (params.payment.vnp_TransactionNo as string) || '0',
 		transactionDate: (params.payment.vnp_PayDate as string) || '',
 		orderInfo: `Hoan tien huy booking ${params.bookingId} (${params.cancelReason})`,
