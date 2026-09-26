@@ -71,4 +71,20 @@ abstract class AuthRepository {
     required String uid,
     required bool locked,
   });
+
+  /// Màn "Hồ sơ cá nhân" (functional-spec 4.2) — sửa tên/SĐT/ảnh đại diện.
+  Future<Either<Failure, UserEntity>> updateProfile({
+    required String displayName,
+    required String phone,
+    String? avatarUrl,
+  });
+
+  Future<Either<Failure, void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
+
+  /// Tài khoản đăng nhập bằng Google không có mật khẩu để đổi — dùng để ẩn
+  /// mục "Đổi mật khẩu" trên màn Hồ sơ cho các tài khoản này.
+  bool isPasswordAccount();
 }

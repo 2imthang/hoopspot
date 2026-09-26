@@ -12,6 +12,7 @@ import '../../../admin/presentation/pages/user_court_management_page.dart';
 import '../../../auth/domain/entities/user_entity.dart';
 import '../../../auth/domain/usecases/sign_out_usecase.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../../../auth/presentation/pages/profile_page.dart';
 import '../../../booking/presentation/pages/booking_history_page.dart';
 import '../../../booking/presentation/pages/owner_bookings_page.dart';
 import '../../../court/presentation/pages/court_detail_page.dart';
@@ -179,6 +180,8 @@ class _HomeViewState extends State<_HomeView> {
         return BookingHistoryPage(userId: widget.user.uid);
       case 'Thông báo':
         return const NotificationsPage();
+      case 'Cá nhân':
+        return ProfilePage(user: widget.user, onSignOut: () => _signOut(context));
       default:
         return _buildComingSoonTab(context, label);
     }
@@ -186,21 +189,9 @@ class _HomeViewState extends State<_HomeView> {
 
   Widget _buildComingSoonTab(BuildContext context, String label) {
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '$label sắp ra mắt',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          if (label == 'Cá nhân') ...[
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () => _signOut(context),
-              child: const Text('Đăng xuất'),
-            ),
-          ],
-        ],
+      child: Text(
+        '$label sắp ra mắt',
+        style: Theme.of(context).textTheme.titleMedium,
       ),
     );
   }

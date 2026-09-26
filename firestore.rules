@@ -14,12 +14,15 @@ service cloud.firestore {
     // to list pending Owners). `create` is always the caller writing their
     // own first doc at registration. `update`: Admin can change anyone
     // (approve/reject Owner, later lock/unlock accounts); a normal user can
-    // only perform the one self-service "nộp lại hồ sơ" transition
-    // (rejected -> pending, clearing rejectReason) and nothing else — in
+    // only perform 2 self-service transitions and nothing else — in
     // particular this blocks a user from ever self-granting role or status
     // via a raw client write, which the previous unrestricted self-update
     // rule allowed and which would have made TASK-033's approval gate
-    // meaningless.
+    // meaningless:
+    //   1. "nộp lại hồ sơ" (rejected -> pending, clearing rejectReason)
+    //   2. sửa hồ sơ cá nhân (displayName/phone/avatarUrl) — màn "Hồ sơ cá
+    //      nhân", không đụng tới role/status nên an toàn ở mọi lúc, không
+    //      cần điều kiện resource.data.status như case 1.
     match /users/{userId} {
       allow read: if request.auth != null &&
         (request.auth.uid == userId || isAdmin());
@@ -30,7 +33,9 @@ service cloud.firestore {
           && resource.data.status == 'rejected'
           && request.resource.data.status == 'pending'
           && request.resource.data.rejectReason == null
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'rejectReason']))
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'rejectReason'])) ||
+        (request.auth.uid == userId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'phone', 'avatarUrl']))
       );
       allow delete: if false;
     }

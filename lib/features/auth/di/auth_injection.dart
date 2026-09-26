@@ -2,9 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../../core/di/injection_container.dart';
+import '../../../core/services/image_upload_service.dart';
 import '../data/datasources/auth_remote_datasource.dart';
 import '../data/repositories/auth_repository_impl.dart';
 import '../domain/repositories/auth_repository.dart';
+import '../domain/usecases/change_password_usecase.dart';
 import '../domain/usecases/check_email_verified_usecase.dart';
 import '../domain/usecases/complete_google_signup_usecase.dart';
 import '../domain/usecases/forgot_password_usecase.dart';
@@ -15,8 +17,11 @@ import '../domain/usecases/register_usecase.dart';
 import '../domain/usecases/resubmit_owner_application_usecase.dart';
 import '../domain/usecases/send_email_verification_usecase.dart';
 import '../domain/usecases/sign_out_usecase.dart';
+import '../domain/usecases/update_profile_usecase.dart';
 import '../presentation/bloc/account_status_cubit.dart';
+import '../presentation/bloc/change_password_cubit.dart';
 import '../presentation/bloc/complete_profile_cubit.dart';
+import '../presentation/bloc/edit_profile_cubit.dart';
 import '../presentation/bloc/forgot_password_cubit.dart';
 import '../presentation/bloc/login_cubit.dart';
 import '../presentation/bloc/register_cubit.dart';
@@ -47,6 +52,8 @@ void initAuthDependencies() {
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
   sl.registerLazySingleton(() => ResubmitOwnerApplicationUseCase(sl()));
   sl.registerLazySingleton(() => ForgotPasswordUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
+  sl.registerLazySingleton(() => ChangePasswordUseCase(sl()));
 
   sl.registerFactory(() => RegisterCubit(sl()));
   sl.registerFactory(
@@ -79,4 +86,12 @@ void initAuthDependencies() {
       signOutUseCase: sl(),
     ),
   );
+  sl.registerFactoryParam<EditProfileCubit, String?, void>(
+    (initialAvatarUrl, _) => EditProfileCubit(
+      updateProfileUseCase: sl(),
+      imageUploadService: sl<ImageUploadService>(),
+      initialAvatarUrl: initialAvatarUrl,
+    ),
+  );
+  sl.registerFactory(() => ChangePasswordCubit(sl()));
 }

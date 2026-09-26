@@ -52,6 +52,19 @@ abstract class AuthRemoteDataSource {
   Future<List<UserModel>> getManageableUsers();
 
   Future<void> setUserLocked({required String uid, required bool locked});
+
+  Future<UserModel> updateProfile({
+    required String displayName,
+    required String phone,
+    String? avatarUrl,
+  });
+
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
+
+  bool isPasswordAccount();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -279,6 +292,55 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     await firestore.collection(FirestoreCollections.users).doc(uid).update({
       'status': (locked ? UserStatus.locked : UserStatus.active).name,
     });
+  }
+
+  @override
+  Future<UserModel> updateProfile({
+    required String displayName,
+    required String phone,
+    String? avatarUrl,
+  }) async {
+    final firebaseUser = firebaseAuth.currentUser;
+    if (firebaseUser == null) {
+      throw const ServerException(message: 'Chưa đăng nhập');
+    }
+    await firestore.collection(FirestoreCollections.users).doc(firebaseUser.uid).update({
+      'displayName': displayName,
+      'phone': phone,
+      'avatarUrl': avatarUrl,
+    });
+    return _fetchUserDoc(firebaseUser.uid);
+  }
+
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final firebaseUser = firebaseAuth.currentUser;
+    if (firebaseUser == null || firebaseUser.email == null) {
+      throw const ServerException(message: 'Chưa đăng nhập');
+    }
+    try {
+      final credential = EmailAuthProvider.credential(
+        email: firebaseUser.email!,
+        password: currentPassword,
+      );
+      await firebaseUser.reauthenticateWithCredential(credential);
+      await firebaseUser.updatePassword(newPassword);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        throw const ServerException(message: 'Mật khẩu hiện tại không đúng');
+      }
+      throw ServerException(message: _mapFirebaseAuthError(e));
+    }
+  }
+
+  @override
+  bool isPasswordAccount() {
+    final firebaseUser = firebaseAuth.currentUser;
+    if (firebaseUser == null) return false;
+    return firebaseUser.providerData.any((info) => info.providerId == 'password');
   }
 
   @override

@@ -223,4 +223,45 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(ServerFailure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, UserEntity>> updateProfile({
+    required String displayName,
+    required String phone,
+    String? avatarUrl,
+  }) async {
+    try {
+      final user = await remoteDataSource.updateProfile(
+        displayName: displayName,
+        phone: phone,
+        avatarUrl: avatarUrl,
+      );
+      return Right(user);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await remoteDataSource.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      return const Right(null);
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  bool isPasswordAccount() => remoteDataSource.isPasswordAccount();
 }
