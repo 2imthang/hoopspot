@@ -145,16 +145,39 @@ class _HomeViewState extends State<_HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       body: SafeArea(child: _buildBody(context)),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) =>
-            setState(() => _selectedIndex = index),
-        destinations: [
-          for (var i = 0; i < _tabs.length; i++)
-            NavigationDestination(icon: Icon(_tabIcons[i]), label: _tabs[i]),
-        ],
+      // Owner có 7 tab (nhiều nhất trong app) — cỡ chữ nhãn mặc định của
+      // NavigationBar khiến 1-2 nhãn dài ("Sân của tôi", "Thông báo") tự
+      // xuống 2 dòng trong khi các nhãn khác vẫn 1 dòng, làm icon lệch cao
+      // thấp không đều. Giảm nhẹ cỡ chữ (chỉ riêng NavigationBar này) để
+      // toàn bộ nhãn luôn vừa 1 dòng, giữ nguyên logic màu/độ đậm theo
+      // trạng thái chọn mặc định của Material 3.
+      bottomNavigationBar: Theme(
+        data: Theme.of(context).copyWith(
+          navigationBarTheme: NavigationBarThemeData(
+            labelTextStyle: WidgetStateProperty.resolveWith((states) {
+              final selected = states.contains(WidgetState.selected);
+              return TextStyle(
+                fontSize: 11,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                color: selected
+                    ? colorScheme.onSurface
+                    : colorScheme.onSurfaceVariant,
+              );
+            }),
+          ),
+        ),
+        child: NavigationBar(
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: (index) =>
+              setState(() => _selectedIndex = index),
+          destinations: [
+            for (var i = 0; i < _tabs.length; i++)
+              NavigationDestination(icon: Icon(_tabIcons[i]), label: _tabs[i]),
+          ],
+        ),
       ),
     );
   }
