@@ -72,9 +72,14 @@ service cloud.firestore {
         && (request.auth.uid == resource.data.userId
           || request.auth.uid == resource.data.ownerId
           || isAdmin());
+      // functional-spec 4.4 edge case: chặn tạo booking nếu sân đã bị Admin
+      // ẩn giữa lúc User đang xem (Home/Search đã tự lọc sân ẩn ra khỏi
+      // danh sách, nhưng nếu User mở sẵn trang Chi tiết sân từ trước thì
+      // vẫn có thể bấm "Đặt sân" — chặn thật ở đây, không chỉ tin UI).
       allow create: if request.auth != null
         && request.resource.data.userId == request.auth.uid
-        && request.resource.data.status == 'pendingPayment';
+        && request.resource.data.status == 'pendingPayment'
+        && get(/databases/$(database)/documents/courts/$(request.resource.data.courtId)).data.isHidden == false;
       allow update, delete: if false;
     }
 

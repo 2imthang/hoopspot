@@ -156,6 +156,13 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
       }
       return booking;
     } on FirebaseException catch (e) {
+      // functional-spec 4.4 edge case: sân bị Admin ẩn ngay giữa lúc User
+      // đang xem (Rules chặn `create` nếu `courts/{courtId}.isHidden` là
+      // true) — Firestore chỉ trả về "permission-denied" chung chung, đổi
+      // thành thông báo đúng ý người dùng thay vì lộ chi tiết kỹ thuật.
+      if (e.code == 'permission-denied') {
+        throw const ServerException(message: 'Sân hiện không khả dụng');
+      }
       final message = firebaseErrorMessage(e, fallback: 'Không thể tạo booking');
       if (isNetworkFirebaseError(e)) throw NetworkException(message: message);
       throw ServerException(message: message);

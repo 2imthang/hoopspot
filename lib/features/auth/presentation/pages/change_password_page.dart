@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/utils/password_validator.dart';
 import '../bloc/change_password_cubit.dart';
 import '../widgets/auth_text_field.dart';
 
@@ -38,11 +39,6 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
-  }
-
-  String? _validateNewPassword(String? value) {
-    if ((value ?? '').length < 6) return 'Mật khẩu tối thiểu 6 ký tự';
-    return null;
   }
 
   String? _validateConfirmPassword(String? value) {
@@ -94,10 +90,10 @@ class _ChangePasswordViewState extends State<_ChangePasswordView> {
                   const SizedBox(height: 16),
                   AuthTextField(
                     label: 'Mật khẩu mới',
-                    hint: 'Tối thiểu 6 ký tự',
+                    hint: 'Tối thiểu 8 ký tự, có chữ và số',
                     controller: _newPasswordController,
                     obscureText: true,
-                    validator: _validateNewPassword,
+                    validator: validatePassword,
                   ),
                   const SizedBox(height: 16),
                   AuthTextField(

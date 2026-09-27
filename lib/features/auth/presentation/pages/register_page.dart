@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/password_validator.dart';
 import '../../domain/entities/user_entity.dart';
 import '../bloc/register_cubit.dart';
 import '../widgets/auth_text_field.dart';
@@ -74,11 +75,6 @@ class _RegisterViewState extends State<_RegisterView> {
     if (!RegExp(r'^0\d{9}$').hasMatch(digitsOnly)) {
       return 'Số điện thoại không hợp lệ (10 số, bắt đầu bằng 0)';
     }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.length < 6) return 'Mật khẩu tối thiểu 6 ký tự';
     return null;
   }
 
@@ -176,7 +172,7 @@ class _RegisterViewState extends State<_RegisterView> {
           hint: '••••••••',
           controller: _passwordController,
           obscureText: true,
-          validator: _validatePassword,
+          validator: validatePassword,
           autocorrect: false,
           enableSuggestions: false,
         ),

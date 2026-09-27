@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import '../../../../core/error/failures.dart';
 import '../../../court/domain/entities/court_entity.dart';
 import '../../domain/usecases/create_booking_usecase.dart';
 import '../../domain/usecases/get_booked_slots_usecase.dart';
@@ -82,6 +83,11 @@ class BookingSlotsCubit extends Cubit<BookingSlotsState> {
     final selectedSlotsSnapshot = current.selectedSlots.toList();
     final failedSlots = <String>{};
     final createdBookingIds = <String>[];
+    // Mỗi slot tạo booking riêng (cho phép thành công 1 phần) — nhưng nếu
+    // lý do thất bại KHÔNG phải "slot vừa bị người khác đặt" (vd sân bị ẩn
+    // giữa chừng — functional-spec 4.4), phải hiện đúng message đó thay vì
+    // che đi bằng câu chung chung ở dưới.
+    String? distinctFailureMessage;
     for (final slot in current.selectedSlots) {
       final result = await createBookingUseCase(
         CreateBookingParams(
@@ -93,7 +99,12 @@ class BookingSlotsCubit extends Cubit<BookingSlotsState> {
         ),
       );
       result.fold(
-        (failure) => failedSlots.add(slot),
+        (failure) {
+          failedSlots.add(slot);
+          if (failure is! SlotUnavailableFailure) {
+            distinctFailureMessage = failure.message;
+          }
+        },
         (booking) => createdBookingIds.add(booking.id),
       );
     }
@@ -122,7 +133,9 @@ class BookingSlotsCubit extends Cubit<BookingSlotsState> {
               bookedSlots: booked.toSet(),
               selectedSlots: current.selectedSlots.difference(failedSlots),
               submitting: false,
-              message: 'Khung giờ vừa được đặt, vui lòng chọn khung giờ khác',
+              message:
+                  distinctFailureMessage ??
+                  'Khung giờ vừa được đặt, vui lòng chọn khung giờ khác',
             ),
           );
         }
