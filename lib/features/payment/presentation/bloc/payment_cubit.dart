@@ -42,15 +42,27 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  /// Gọi khi WebView phát hiện đã chuyển tới `vnp_ReturnUrl` — bắt đầu theo
-  /// dõi Firestore thật thay vì tin nội dung trang return.
-  void onReturnUrlReached(List<String> bookingIds) {
-    emit(PaymentChecking(bookingIds));
+  /// Gọi ngay sau khi mở trình duyệt ngoài (Chrome) — bắt đầu theo dõi
+  /// Firestore thật ngay từ lúc này (không chờ user quay lại app), vì IPN
+  /// có thể tới bất cứ lúc nào phía server, độc lập với việc app có đang ở
+  /// foreground hay không.
+  void launchedBrowser(List<String> bookingIds) {
+    emit(PaymentWaitingInBrowser(bookingIds));
 
     _statusSubscription?.cancel();
     _statusSubscription = watchBookingsStatusUseCase(
       bookingIds,
     ).listen(_handleBookingsUpdate);
+  }
+
+  /// Gọi khi app quay lại foreground sau khi user rời sang trình duyệt
+  /// ngoài để thanh toán — đây là lúc bắt đầu đếm 30s chờ IPN, tương đương
+  /// mốc "đã chuyển tới vnp_ReturnUrl" trong luồng WebView cũ.
+  void onReturnedFromBrowser() {
+    final current = state;
+    if (current is! PaymentWaitingInBrowser) return;
+
+    emit(PaymentChecking(current.bookingIds));
 
     _timeoutTimer?.cancel();
     _timeoutTimer = Timer(_statusCheckTimeout, () {
@@ -58,8 +70,19 @@ class PaymentCubit extends Cubit<PaymentState> {
     });
   }
 
+  /// Không mở được trình duyệt (máy không có app trình duyệt nào xử lý được
+  /// link https, rất hiếm gặp).
+  void browserLaunchFailed() {
+    emit(
+      const PaymentError(
+        'Không mở được trình duyệt để thanh toán. Kiểm tra máy có cài trình duyệt (Chrome) không.',
+      ),
+    );
+  }
+
   void _handleBookingsUpdate(List<BookingEntity> bookings) {
-    if (bookings.isEmpty || state is! PaymentChecking) return;
+    if (bookings.isEmpty) return;
+    if (state is! PaymentChecking && state is! PaymentWaitingInBrowser) return;
 
     final anyCancelled = bookings.any(
       (b) => b.status == BookingStatus.cancelled,

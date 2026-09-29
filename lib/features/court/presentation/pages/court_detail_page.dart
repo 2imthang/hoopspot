@@ -255,7 +255,10 @@ class _ImageCarouselState extends State<_ImageCarousel> {
                 ),
         ),
         Positioned(
-          top: 8,
+          // Ảnh sân tràn full lên sát mép trên màn hình (SafeArea top:
+          // false ở _CourtDetailView) nên phải tự cộng thêm chiều cao thanh
+          // trạng thái, không thì 2 nút này bị đè lên đồng hồ/pin.
+          top: 8 + MediaQuery.of(context).padding.top,
           left: 8,
           child: _CircleIconButton(
             icon: Icons.arrow_back,
@@ -263,7 +266,7 @@ class _ImageCarouselState extends State<_ImageCarousel> {
           ),
         ),
         Positioned(
-          top: 8,
+          top: 8 + MediaQuery.of(context).padding.top,
           right: 8,
           child: FavoriteButton(courtId: widget.courtId),
         ),

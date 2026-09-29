@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-import '../../../../core/constants/payment_worker_constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../bloc/payment_cubit.dart';
 
-/// TASK-023 — WebView thanh toán VNPay + theo dõi trạng thái booking qua
-/// Firestore real-time (thay cho polling định kỳ, đơn giản hơn mà vẫn đúng
-/// yêu cầu "không phụ thuộc hoàn toàn vào deep link" của functional-spec).
+/// TASK-023 — mở trang thanh toán VNPay bằng trình duyệt ngoài (Chrome) +
+/// theo dõi trạng thái booking qua Firestore real-time (thay cho polling
+/// định kỳ, đơn giản hơn mà vẫn đúng yêu cầu "không phụ thuộc hoàn toàn vào
+/// deep link" của functional-spec).
+///
+/// Trước đây dùng WebView nhúng (webview_flutter), nhưng phát hiện một số
+/// máy thật có "Android System WebView" không bắt tay SSL được với
+/// sandbox.vnpayment.vn (net_error -202, ERR_CERT_AUTHORITY_INVALID) dù
+/// Chrome thật trên cùng máy load domain đó bình thường — nên đổi sang mở
+/// thẳng bằng trình duyệt ngoài để tránh phụ thuộc vào WebView riêng của
+/// từng máy/hãng.
 class PaymentPage extends StatelessWidget {
   final String userId;
   final List<String> bookingIds;
@@ -29,17 +36,64 @@ class PaymentPage extends StatelessWidget {
   }
 }
 
-class _PaymentView extends StatelessWidget {
+class _PaymentView extends StatefulWidget {
   const _PaymentView();
+
+  @override
+  State<_PaymentView> createState() => _PaymentViewState();
+}
+
+class _PaymentViewState extends State<_PaymentView> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // User quay lại app sau khi thanh toán trên trình duyệt ngoài — nếu
+    // đúng lúc đang chờ (PaymentWaitingInBrowser) thì bắt đầu đếm time-out
+    // chờ IPN; nếu không phải thì cubit tự bỏ qua, gọi vô hại.
+    if (state == AppLifecycleState.resumed) {
+      context.read<PaymentCubit>().onReturnedFromBrowser();
+    }
+  }
+
+  Future<void> _openBrowser(PaymentWebViewReady state) async {
+    final cubit = context.read<PaymentCubit>();
+    try {
+      final launched = await launchUrl(
+        Uri.parse(state.paymentUrl),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched) {
+        cubit.browserLaunchFailed();
+        return;
+      }
+      cubit.launchedBrowser(state.bookingIds);
+    } catch (_) {
+      cubit.browserLaunchFailed();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Thanh toán')),
       body: SafeArea(
-        child: BlocBuilder<PaymentCubit, PaymentState>(
+        child: BlocConsumer<PaymentCubit, PaymentState>(
+          listener: (context, state) {
+            if (state is PaymentWebViewReady) _openBrowser(state);
+          },
           builder: (context, state) {
-            if (state is PaymentLoading) {
+            if (state is PaymentLoading || state is PaymentWebViewReady) {
               return const Center(child: CircularProgressIndicator());
             }
             if (state is PaymentError) {
@@ -51,10 +105,14 @@ class _PaymentView extends StatelessWidget {
                 showBackButton: true,
               );
             }
-            if (state is PaymentWebViewReady) {
-              return _PaymentWebView(
-                paymentUrl: state.paymentUrl,
-                bookingIds: state.bookingIds,
+            if (state is PaymentWaitingInBrowser) {
+              return const _MessageView(
+                icon: Icons.open_in_new,
+                color: null,
+                title: 'Đang chờ thanh toán',
+                message:
+                    'Hoàn tất thanh toán trên trình duyệt vừa mở, sau đó quay lại app này.',
+                showLoading: true,
               );
             }
             if (state is PaymentChecking) {
@@ -97,44 +155,6 @@ class _PaymentView extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _PaymentWebView extends StatefulWidget {
-  final String paymentUrl;
-  final List<String> bookingIds;
-
-  const _PaymentWebView({required this.paymentUrl, required this.bookingIds});
-
-  @override
-  State<_PaymentWebView> createState() => _PaymentWebViewState();
-}
-
-class _PaymentWebViewState extends State<_PaymentWebView> {
-  late final WebViewController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(
-        NavigationDelegate(onNavigationRequest: _onNavigationRequest),
-      )
-      ..loadRequest(Uri.parse(widget.paymentUrl));
-  }
-
-  NavigationDecision _onNavigationRequest(NavigationRequest request) {
-    if (request.url.startsWith(PaymentWorkerConstants.returnUrl)) {
-      context.read<PaymentCubit>().onReturnUrlReached(widget.bookingIds);
-      return NavigationDecision.prevent;
-    }
-    return NavigationDecision.navigate;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return WebViewWidget(controller: _controller);
   }
 }
 

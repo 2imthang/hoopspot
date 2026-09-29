@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Ghi chú ôn tập phỏng vấn cá nhân — không phải code của app
+/INTERVIEW_PREP.md
