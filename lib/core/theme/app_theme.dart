@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 /// Centralized Material 3 theme (light + dark). Screen tasks refine the
-/// seed color and typography to match the Claude Design tokens once the
-/// UI screens are built — no colors should be hard-coded outside this file.
+/// seed color and typography to match the UI mockup tokens once the
+/// screens are built — no colors should be hard-coded outside this file.
 class AppTheme {
   const AppTheme._();
 

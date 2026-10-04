@@ -1,7 +1,7 @@
 # HoopSpot — Đặc Tả Chức Năng, UI & Yêu Cầu Hệ Thống
 ### (Functional & UI Specification — dựa trên Design Brief đã chốt)
 
-> ⚠️ **Đã pivot sang Firebase** — toàn bộ user flow, business logic, validation, edge case, và đặc tả 23 màn hình UI trong tài liệu này **vẫn đúng và áp dụng bình thường**. Chỉ riêng các chỗ ghi cụ thể "API" dạng `GET /courts`, `POST /bookings`... nên hiểu là **thao tác Firestore SDK tương ứng** (đọc/ghi collection), không phải endpoint REST tự viết. Chi tiết kỹ thuật Firebase xem trong `CLAUDE.md`.
+> ⚠️ **Đã pivot sang Firebase** — toàn bộ user flow, business logic, validation, edge case, và đặc tả 23 màn hình UI trong tài liệu này **vẫn đúng và áp dụng bình thường**. Chỉ riêng các chỗ ghi cụ thể "API" dạng `GET /courts`, `POST /bookings`... nên hiểu là **thao tác Firestore SDK tương ứng** (đọc/ghi collection), không phải endpoint REST tự viết. Chi tiết kỹ thuật Firebase xem trong `hoopspot-roadmap.md`.
 
 ---
 

@@ -1,6 +1,6 @@
 # HoopSpot — Kế Hoạch Triển Khai 6 Tuần (1.5 tháng) — Bản Firebase (đã đơn giản hóa)
 
-### Chiến lược: Vibe code là chính, chỉ dừng lại hiểu sâu ở vài điểm thực sự cần
+### Chiến lược: Ưu tiên tốc độ triển khai, chỉ dừng lại hiểu sâu ở vài điểm thực sự cần
 
 > **Đã đổi hướng lần 1**: Bỏ backend tự viết (NestJS/Prisma), chuyển sang Firebase (Auth + Firestore + Storage) + Cloud Functions tối thiểu cho thanh toán. Roadmap này thay thế hoàn toàn bản cũ.
 >
@@ -10,8 +10,8 @@
 
 ## 0. Nguyên tắc xuyên suốt
 
-- **Vibe code (để AI sinh code nhanh, review qua)**: phần lớn công việc — CRUD qua Firestore SDK, UI widget, form, styling
-- **Không vibe, phải tự hiểu** (đánh dấu 🔴): chỉ còn 4 điểm thực sự cần — Firestore Transaction chống trùng slot, VNPay IPN, Firestore Security Rules phân quyền, và luồng thanh toán tổng thể. Số lượng 🔴 giảm mạnh so với bản NestJS vì Firebase Auth/Database không cần bạn tự lo cơ chế bên dưới
+- **Triển khai nhanh, review kỹ lại sau**: phần lớn công việc — CRUD qua Firestore SDK, UI widget, form, styling
+- **Không làm nhanh được, phải tự hiểu** (đánh dấu 🔴): chỉ còn 4 điểm thực sự cần — Firestore Transaction chống trùng slot, VNPay IPN, Firestore Security Rules phân quyền, và luồng thanh toán tổng thể. Số lượng 🔴 giảm mạnh so với bản NestJS vì Firebase Auth/Database không cần bạn tự lo cơ chế bên dưới
 - Cuối mỗi tuần có mục **"Đọc hiểu lại"** — 1 câu hỏi để tự kiểm tra
 - Task đánh số `TASK-XXX`, mỗi task ước lượng 2-6 giờ
 
@@ -24,13 +24,13 @@
 | Task | Nội dung | Ghi chú |
 |---|---|---|
 | TASK-001 | Tạo project trên Firebase Console, bật Authentication (Email/Password + Google), bật Firestore. Tạo tài khoản Cloudinary (free, không cần thẻ) cho ảnh | Tự làm theo hướng dẫn, không cần hiểu sâu |
-| TASK-002 | Kết nối Flutter với Firebase (FlutterFire CLI, thêm file cấu hình) | Vibe code |
-| TASK-003 | Thiết kế cấu trúc document `users` trong Firestore (role, status) | Vibe code — Firestore không cần schema cứng như SQL, chỉ cần thống nhất cấu trúc field |
-| TASK-004 | Màn Đăng ký (chọn role User/Owner) dùng Firebase Auth | Vibe code |
-| TASK-005 | Màn Đăng nhập (email/password + Google Sign-In) | Vibe code |
-| TASK-006 | Chặn truy cập nếu `status` = pending/rejected/locked (check ngay sau khi login) | Vibe code, đọc hiểu 1 lần cách check |
+| TASK-002 | Kết nối Flutter với Firebase (FlutterFire CLI, thêm file cấu hình) | — |
+| TASK-003 | Thiết kế cấu trúc document `users` trong Firestore (role, status) | Firestore không cần schema cứng như SQL, chỉ cần thống nhất cấu trúc field |
+| TASK-004 | Màn Đăng ký (chọn role User/Owner) dùng Firebase Auth | — |
+| TASK-005 | Màn Đăng nhập (email/password + Google Sign-In) | — |
+| TASK-006 | Chặn truy cập nếu `status` = pending/rejected/locked (check ngay sau khi login) | Đọc hiểu 1 lần cách check |
 | TASK-007 | Firestore Security Rules cơ bản: user chỉ sửa được document của chính mình | 🔴 Bắt buộc hiểu — đây là "lớp bảo vệ" thay thế cho JWT middleware, khác cách nghĩ SQL nhưng đơn giản hơn |
-| TASK-008 | Flutter: màn Splash, Forgot Password | Vibe code |
+| TASK-008 | Flutter: màn Splash, Forgot Password | — |
 
 **Đọc hiểu lại cuối tuần**: Tự giải thích được — "Vì sao Firestore Security Rules lại thay được cho việc tự viết middleware kiểm tra quyền?"
 
@@ -42,16 +42,16 @@
 
 | Task | Nội dung | Ghi chú |
 |---|---|---|
-| TASK-009 | Cấu trúc document `courts` (ảnh, giá, tiện ích, vị trí, is_outdoor) | Vibe code |
-| TASK-010 | CRUD sân cho Owner qua Firestore SDK trực tiếp (không qua REST API trung gian) | Vibe code |
+| TASK-009 | Cấu trúc document `courts` (ảnh, giá, tiện ích, vị trí, is_outdoor) | — |
+| TASK-010 | CRUD sân cho Owner qua Firestore SDK trực tiếp (không qua REST API trung gian) | — |
 | TASK-011 | Security Rules: chỉ Owner đúng chủ sân mới sửa/xóa được | 🔴 Bắt buộc hiểu (nối tiếp TASK-007) |
-| TASK-012 | Upload ảnh sân lên Cloudinary (unsigned upload preset), lưu URL trả về vào Firestore | Vibe code |
-| TASK-013 | Flutter: Home (danh sách sân), Search & Filter | Vibe code |
-| TASK-014 | Cấu trúc document `bookings` (status, expiresAt, courtId, date, timeSlot) | Vibe code |
+| TASK-012 | Upload ảnh sân lên Cloudinary (unsigned upload preset), lưu URL trả về vào Firestore | — |
+| TASK-013 | Flutter: Home (danh sách sân), Search & Filter | — |
+| TASK-014 | Cấu trúc document `bookings` (status, expiresAt, courtId, date, timeSlot) | — |
 | TASK-015 | Tạo booking dùng **Firestore Transaction** để chống đặt trùng slot | 🔴 Bắt buộc hiểu sâu nhất tuần này — test bằng cách bấm đặt 2 lần liên tiếp thật nhanh để tự kiểm chứng |
-| TASK-016 | Cơ chế giữ slot 10 phút — kiểm tra `expiresAt` mỗi khi query danh sách slot | Vibe code, hiểu ý tưởng 1 lần |
-| TASK-017 | Flutter: Court Detail, Google Maps hiển thị vị trí + chỉ đường | Vibe code |
-| TASK-018 | Flutter: màn chọn ngày/giờ theo ca | Vibe code |
+| TASK-016 | Cơ chế giữ slot 10 phút — kiểm tra `expiresAt` mỗi khi query danh sách slot | Hiểu ý tưởng 1 lần |
+| TASK-017 | Flutter: Court Detail, Google Maps hiển thị vị trí + chỉ đường | — |
+| TASK-018 | Flutter: màn chọn ngày/giờ theo ca | — |
 
 **Đọc hiểu lại cuối tuần**: Tự trả lời — "Vì sao dùng Transaction mà không phải chỉ kiểm tra-rồi-tạo bình thường?" (câu trả lời: 2 người bấm cùng lúc, nếu không dùng Transaction cả 2 đều đọc thấy "còn trống" trước khi ai kịp ghi, dẫn tới đặt trùng).
 
@@ -63,15 +63,15 @@
 
 | Task | Nội dung | Ghi chú |
 |---|---|---|
-| TASK-019 | Đăng ký VNPay Sandbox, đọc docs cơ bản (redirect, IPN, refund). Tạo project Cloudflare Workers (free, không cần thẻ) | 🔴 Bắt buộc đọc, không vibe được phần hiểu docs |
-| TASK-020 | Viết Cloudflare Worker tạo URL thanh toán VNPay | Vibe code theo docs, đây là function nhỏ (~30-50 dòng), không phải cả hệ thống backend |
+| TASK-019 | Đăng ký VNPay Sandbox, đọc docs cơ bản (redirect, IPN, refund). Tạo project Cloudflare Workers (free, không cần thẻ) | 🔴 Bắt buộc đọc kỹ, không bỏ qua được phần hiểu docs |
+| TASK-020 | Viết Cloudflare Worker tạo URL thanh toán VNPay | Function nhỏ (~30-50 dòng), không phải cả hệ thống backend |
 | TASK-021 | Viết Cloudflare Worker xử lý IPN callback: verify signature, cập nhật Firestore (qua Firebase Admin REST API + service account) | 🔴 Bắt buộc hiểu — đây là điểm quan trọng nhất trong toàn dự án, nhưng chỉ là 1 function duy nhất, không phải nhiều lớp như NestJS |
 | TASK-022 | Xử lý idempotency (IPN gọi lặp) trong Cloudflare Worker | 🔴 Bắt buộc hiểu, gộp chung buổi học với TASK-021 |
-| TASK-023 | Flutter: WebView thanh toán, polling trạng thái booking | Vibe code |
-| TASK-024 | Màn "Xác nhận điều khoản" — checkbox bắt buộc trước thanh toán | Vibe code |
-| TASK-025 | Cloudflare Worker hoàn tiền (rule 6 tiếng) gọi VNPay Refund API | Vibe code, đọc hiểu logic 1 lần |
-| TASK-026 | Owner đánh dấu "hủy do mưa" → trigger Cloudflare Worker hoàn tiền | Vibe code |
-| TASK-027 | Flutter: Booking History, hủy lịch, xem trạng thái thanh toán | Vibe code |
+| TASK-023 | Flutter: WebView thanh toán, polling trạng thái booking | — |
+| TASK-024 | Màn "Xác nhận điều khoản" — checkbox bắt buộc trước thanh toán | — |
+| TASK-025 | Cloudflare Worker hoàn tiền (rule 6 tiếng) gọi VNPay Refund API | Đọc hiểu logic 1 lần |
+| TASK-026 | Owner đánh dấu "hủy do mưa" → trigger Cloudflare Worker hoàn tiền | — |
+| TASK-027 | Flutter: Booking History, hủy lịch, xem trạng thái thanh toán | — |
 
 **Đọc hiểu lại cuối tuần**: Tự trả lời — "Vì sao không tin kết quả redirect từ client mà phải chờ IPN?" Đây gần như chắc chắn sẽ bị hỏi nếu CV ghi thanh toán VNPay.
 
@@ -83,15 +83,15 @@
 
 | Task | Nội dung | Ghi chú |
 |---|---|---|
-| TASK-028 | Flutter: Yêu thích (toggle qua Firestore, optimistic update) | Vibe code |
-| TASK-029 | Flutter: Đánh giá (chỉ cho booking đã confirmed & qua giờ chơi) | Vibe code |
-| TASK-030 | Local Notification nhắc lịch trước giờ chơi | Vibe code |
-| TASK-031 | Flutter: My Courts, Court Schedule Config (Owner) | Vibe code |
-| TASK-032 | Flutter: Owner Bookings — xem danh sách đặt tại sân mình | Vibe code |
-| TASK-033 | Flutter: Admin duyệt/từ chối Owner (bắt buộc lý do khi từ chối) | Vibe code |
-| TASK-034 | Flutter: Admin khóa/mở User, ẩn/hiện sân | Vibe code |
-| TASK-035 | Flutter: Admin xem danh sách giao dịch (đọc Firestore) | Vibe code |
-| TASK-036 | Empty state, Error state, Loading skeleton cho toàn bộ màn hình | Vibe code |
+| TASK-028 | Flutter: Yêu thích (toggle qua Firestore, optimistic update) | — |
+| TASK-029 | Flutter: Đánh giá (chỉ cho booking đã confirmed & qua giờ chơi) | — |
+| TASK-030 | Local Notification nhắc lịch trước giờ chơi | — |
+| TASK-031 | Flutter: My Courts, Court Schedule Config (Owner) | — |
+| TASK-032 | Flutter: Owner Bookings — xem danh sách đặt tại sân mình | — |
+| TASK-033 | Flutter: Admin duyệt/từ chối Owner (bắt buộc lý do khi từ chối) | — |
+| TASK-034 | Flutter: Admin khóa/mở User, ẩn/hiện sân | — |
+| TASK-035 | Flutter: Admin xem danh sách giao dịch (đọc Firestore) | — |
+| TASK-036 | Empty state, Error state, Loading skeleton cho toàn bộ màn hình | — |
 
 **Đọc hiểu lại cuối tuần**: Không có phần 🔴 mới — ôn lại 3 tuần trước, đặc biệt Transaction (TASK-015) và VNPay IPN (TASK-021/022).
 
@@ -103,11 +103,11 @@
 
 | Task | Nội dung | Ghi chú |
 |---|---|---|
-| TASK-037 | Viết 4-6 Unit Test cho logic quan trọng (transaction, refund calculation) | Vibe code, review kỹ test case |
-| TASK-038 | Viết 3-5 Widget Test cho Flutter (form validation, booking flow) | Vibe code |
-| TASK-039 | Rà coding convention: không hard-code string/color/URL | Vibe code (AI tự review + refactor) |
-| TASK-040 | Dark Mode, Responsive check | Vibe code |
-| TASK-041 | Error handling toàn cục: network error, retry | Vibe code |
+| TASK-037 | Viết 4-6 Unit Test cho logic quan trọng (transaction, refund calculation) | Review kỹ test case |
+| TASK-038 | Viết 3-5 Widget Test cho Flutter (form validation, booking flow) | — |
+| TASK-039 | Rà coding convention: không hard-code string/color/URL | Tự rà lại, refactor cho gọn |
+| TASK-040 | Dark Mode, Responsive check | — |
+| TASK-041 | Error handling toàn cục: network error, retry | — |
 | TASK-042 | Deploy Cloudflare Workers (`wrangler deploy`), test end-to-end | Tự làm, đơn giản hơn nhiều so với deploy NestJS server — chỉ 1 lệnh |
 
 **Đọc hiểu lại cuối tuần**: Chạy full flow trên bản thật (không phải giả lập) từ đăng ký → đặt sân → thanh toán → hủy → hoàn tiền, ghi lại lỗi phát sinh và tự sửa.
@@ -120,7 +120,7 @@
 
 | Task | Nội dung | Ghi chú |
 |---|---|---|
-| TASK-043 | Viết README.md: giới thiệu, tech stack, hướng dẫn cài đặt, ảnh chụp màn hình | Vibe code phần viết |
+| TASK-043 | Viết README.md: giới thiệu, tech stack, hướng dẫn cài đặt, ảnh chụp màn hình | — |
 | TASK-044 | Quay video demo ngắn (2-3 phút) toàn bộ luồng chính | Tự làm |
 | TASK-045 | Chuẩn bị câu trả lời cho câu hỏi phỏng vấn dự kiến (mục 2 bên dưới) | 🔴 Bắt buộc tự chuẩn bị |
 | TASK-046 | Buffer — dự phòng cho task trễ hoặc bug phát sinh | — |

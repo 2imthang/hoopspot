@@ -4,12 +4,12 @@
 class MapConstants {
   const MapConstants._();
 
-  /// TASK-017 — flutter_map + OpenStreetMap thay Google Maps SDK (không cần
-  /// billing account/thẻ tín dụng), xem CLAUDE.md.
+  /// flutter_map + OpenStreetMap thay Google Maps SDK (không cần billing
+  /// account/thẻ tín dụng).
   static const String osmTileUrlTemplate = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
   /// Mở app Google Maps thật để chỉ đường — chỉ là 1 link, không qua SDK
-  /// nên không cần API Key/thẻ (xem CLAUDE.md).
+  /// nên không cần API Key/thẻ.
   static String directionsUrl({required double latitude, required double longitude}) =>
       'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude';
 

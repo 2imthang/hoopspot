@@ -46,3 +46,8 @@ app.*.map.json
 
 # Ghi chú ôn tập phỏng vấn cá nhân — không phải code của app
 /INTERVIEW_PREP.md
+
+# Tài liệu ngữ cảnh nội bộ cho AI coding assistant — không phải code/tài
+# liệu của app, giữ trên máy để làm việc tiếp nhưng không public
+/CLAUDE.md
+/docs/CLAUDE.md

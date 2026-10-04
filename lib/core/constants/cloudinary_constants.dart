@@ -1,6 +1,6 @@
 /// Cloudinary account config — unsigned upload preset lets the app upload
-/// images directly without a server-side secret key (see CLAUDE.md: no
-/// Firebase Storage/Blaze plan needed for image hosting).
+/// images directly without a server-side secret key (avoids needing the
+/// Firebase Storage/Blaze paid plan just for image hosting).
 class CloudinaryConstants {
   const CloudinaryConstants._();
 

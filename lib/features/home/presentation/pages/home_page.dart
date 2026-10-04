@@ -67,8 +67,8 @@ class _HomeViewState extends State<_HomeView> {
     result.fold((_) {}, (location) => setState(() => _locationLabel = location.label));
   }
 
-  /// Owner thấy thêm tab "Sân của tôi" (TASK-031) — vẫn dùng chung
-  /// `HomePage`, không tách app/dashboard riêng, đúng tinh thần CLAUDE.md
+  /// Owner thấy thêm tab "Sân của tôi" — vẫn dùng chung `HomePage`, không
+  /// tách app/dashboard riêng, đúng tinh thần đặc tả chức năng
   /// ("Owner: tất cả quyền User + CRUD sân...").
   bool get _isOwner => widget.user.role == UserRole.owner;
 
